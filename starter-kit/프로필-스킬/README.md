@@ -6,13 +6,13 @@
 
 ## 1. 설치
 
-폴더를 통째로 `.claude/skills/` 안에 `프로필` 이라는 이름으로 복사합니다.
+폴더를 통째로 `.agents/skills/` 안에 `프로필` 이라는 이름으로 복사합니다.
 
 ```
-xcopy /E /I "프로필-스킬" "$env:USERPROFILE\.claude\skills\프로필"
+xcopy /E /I "프로필-스킬" "$env:USERPROFILE\.agents\skills\프로필"
 ```
 
-Claude Code를 재시작하면 "강사 프로필 만들어줘" 같은 말에 자동으로 이 스킬이 켜집니다.
+Codex CLI를 재시작하면 "강사 프로필 만들어줘" 같은 말에 자동으로 이 스킬이 켜집니다.
 
 ## 2. 사전 조건
 
@@ -46,8 +46,8 @@ QA 스크립트(`qa_screenshot.py`)는 **시스템 Chrome을 그대로 씁니다
 스킬이 알아서 돌리지만, 걸린 게 있으면 이렇게 직접 확인할 수 있습니다.
 
 ```
-py -3 .claude/skills/프로필/scripts/validate.py workspace/결과물/파일명.html
-py -3 .claude/skills/프로필/scripts/qa_screenshot.py workspace/결과물/파일명.html
+py -3 .agents/skills/프로필/scripts/validate.py workspace/결과물/파일명.html
+py -3 .agents/skills/프로필/scripts/qa_screenshot.py workspace/결과물/파일명.html
 ```
 
 `validate.py`는 슬라이드 순서·규격·색상(자기 `facts.md` 색인지)·잔존 자리표시자를 자동으로 봅니다.

@@ -9,7 +9,7 @@ from playwright.sync_api import BrowserContext, sync_playwright
 
 # 전용 크롬 프로필 (사용자의 일반 크롬과 완전 분리 — 잠금 충돌 없음)
 # 계정을 여러 개 쓰려면 IMAGE_FLOW_PROFILE 환경변수로 프로필 경로를 갈아끼운다.
-PROFILE_DIR = Path(os.environ.get("IMAGE_FLOW_PROFILE", Path.home() / ".claude" / ".image-flow-profile"))
+PROFILE_DIR = Path(os.environ.get("IMAGE_FLOW_PROFILE", Path.home() / ".codex" / ".image-flow-profile"))
 
 FLOW_URL = "https://labs.google/fx/tools/flow"
 # 실제 앱(프로젝트 목록). 미로그인 시 accounts.google.com 으로 리다이렉트된다.

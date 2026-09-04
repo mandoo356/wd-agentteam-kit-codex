@@ -1,0 +1,6 @@
+[agents]
+enabled = true
+max_concurrent_threads_per_session = 8
+
+# 수업에서는 슬랙 브리지가 명령행 YOLO 플래그를 직접 적용한다.
+# 이 파일은 직원 8명을 Codex가 프로젝트 에이전트로 읽게 하는 공통 설정이다.

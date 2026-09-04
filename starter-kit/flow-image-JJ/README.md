@@ -1,6 +1,6 @@
 # flow-image-JJ 설치 안내
 
-Google Flow에서 이미지를 대량 생성해 자동 다운로드하는 Claude Code 스킬입니다.
+Google Flow에서 이미지를 대량 생성해 자동 다운로드하는 Codex CLI 스킬입니다.
 API 키가 아니라 **본인 Google 계정(구독)** 으로 동작하므로 추가 비용 없이 쓸 수 있습니다.
 
 ## 1. 사전 조건 (설치 전에 꼭 확인!)
@@ -14,19 +14,19 @@ API 키가 아니라 **본인 Google 계정(구독)** 으로 동작하므로 추
 
 ## 2. 스킬 설치
 
-압축을 풀어 `flow-image-JJ` 폴더를 통째로 Claude Code 스킬 폴더에 넣습니다.
+압축을 풀어 `flow-image-JJ` 폴더를 통째로 Codex CLI 스킬 폴더에 넣습니다.
 
-- Windows: `C:\Users\<사용자명>\.claude\skills\flow-image-JJ`
-- macOS/Linux: `~/.claude/skills/flow-image-JJ`
+- Windows: `C:\Users\<사용자명>\.agents\skills\flow-image-JJ`
+- macOS/Linux: `~/.agents/skills/flow-image-JJ`
 
-설치 후 Claude Code를 재시작하면 `/flow-image-JJ` 로 호출할 수 있습니다.
+설치 후 Codex CLI를 재시작하고 프롬프트에 `$flow-image-JJ`를 적어 명시적으로 호출할 수 있습니다.
 
 ## 3. 최초 1회 — 본인 Google 계정 등록 (필수)
 
 **반드시 본인 Google 계정을 1개 이상 등록해야 스킬이 동작합니다.**
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/flow_login.py
+python ~/.agents/skills/flow-image-JJ/scripts/flow_login.py
 ```
 
 크롬 창이 뜨면 **본인이 직접** Google 계정으로 로그인하세요.
@@ -35,20 +35,20 @@ python ~/.claude/skills/flow-image-JJ/scripts/flow_login.py
 등록 확인:
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/flow_probe.py
+python ~/.agents/skills/flow-image-JJ/scripts/flow_probe.py
 ```
 
 `SESSION: <내 이메일>` 이 출력되면 준비 완료입니다.
 
 ## 4. 사용
 
-Claude Code에서 이렇게 요청하면 됩니다:
+Codex CLI에서 이렇게 요청하면 됩니다:
 
 - "구글 플로우로 이미지 만들어줘"
 - "카드뉴스 이미지 4장 뽑아줘"
 - "이 사진 참고해서 이미지 생성해줘 (경로: C:\...\photo.jpg)"
 
-Claude가 스타일 20종 샘플 페이지(https://jj-aiedu.vercel.app/style/card-styles.html)를
+Codex가 스타일 20종 샘플 페이지(https://jj-aiedu.vercel.app/style/card-styles.html)를
 먼저 열어서 보여준 뒤, **스타일 번호(1~20)** 와 **사이즈(16:9 / 4:3 / 1:1 / 3:4 / 9:16)** 를
 물어보고 생성을 시작합니다. 결과는 다운로드 폴더의 `image-flow\<프로젝트명>` 에 저장됩니다.
 

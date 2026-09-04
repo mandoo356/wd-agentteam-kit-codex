@@ -1,6 +1,6 @@
 """네이버 블로그 임시저장 자동화 (Playwright).
 
-Claude in Chrome 확장은 blog.naver.com 을 허용하지 않으므로, 전용 Chrome
+Codex in Chrome 확장은 blog.naver.com 을 허용하지 않으므로, 전용 Chrome
 프로필을 Playwright로 직접 구동한다. 평소 쓰는 브라우저는 건드리지 않는다.
 
   py -3.14 naver_draft.py login --blog-id 내블로그아이디   # 1회: 사람이 직접 로그인 (세션 저장)

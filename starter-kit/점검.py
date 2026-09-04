@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 # 윈도우 콘솔에서 한글·이모지가 깨지지 않도록.
@@ -61,15 +62,20 @@ def major(version_text):
 
 
 def agent_files():
-    return sorted((ROOT / ".claude" / "agents").glob("*.md"))
+    return sorted((ROOT / ".codex" / "agents").glob("*.toml"))
 
 
 def skill_files():
-    return sorted((ROOT / ".claude" / "skills").glob("*/SKILL.md"))
+    return sorted((ROOT / ".agents" / "skills").glob("*/SKILL.md"))
 
 
 def front_matter(path):
     """파일 맨 위 --- 로 둘러싸인 부분에서 key: value 를 읽는다."""
+    if path.suffix.lower() == ".toml":
+        try:
+            return tomllib.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
     try:
         text = path.read_text(encoding="utf-8")
     except Exception:
@@ -166,13 +172,14 @@ def module_0():
     git = run(["git", "--version"])
     checks.append(("Git", git is not None, git or "설치 안 됨 → git-scm.com"))
 
-    claude = shutil.which("claude") or shutil.which("claude.cmd")
-    codex = shutil.which("codex") or shutil.which("codex.cmd")
-    checks.append(("AI 코딩 도구 (claude 또는 codex)", bool(claude or codex),
-                   claude or codex or "둘 중 하나는 설치돼 있어야 합니다"))
+    codex = shutil.which("codex.cmd") or shutil.which("codex.exe") or shutil.which("codex")
+    checks.append(("AI 코딩 도구 Codex CLI", bool(codex),
+                   codex or "Codex CLI가 설치돼 있어야 합니다"))
 
-    need = [".claude/agents", ".claude/skills", "workspace/inbox", "workspace/memory"]
-    missing = [d for d in need if not (ROOT / d).is_dir()]
+    need_dirs = [".codex/agents", ".agents/skills", "workspace/inbox", "workspace/memory"]
+    missing = [d for d in need_dirs if not (ROOT / d).is_dir()]
+    if not (ROOT / "AGENTS.md").is_file():
+        missing.append("AGENTS.md")
     checks.append(("스타터킷 폴더 구조", not missing,
                    "정상" if not missing else "없는 폴더: " + ", ".join(missing)))
 
@@ -189,7 +196,7 @@ def module_1():
     names = []
     for f in files:
         fm = front_matter(f)
-        missing = [k for k in ("name", "description") if k not in fm]
+        missing = [k for k in ("name", "description", "developer_instructions") if k not in fm]
         if missing:
             bad.append(f"{f.name}({','.join(missing)} 없음)")
         if "name" in fm:
@@ -316,13 +323,13 @@ def module_4():
     checks = [("직원이 8명 이상 있다 (모듈 1 완료)", len(agents) >= 8,
                f"{len(agents)}명" if agents else "0명 — 모듈 1을 먼저 하세요")]
 
-    # `.md.txt` 로 잘못 저장된 파일 잡기. 탐색기가 확장자를 숨기면 눈으로는 구별이 안 된다.
-    agents_dir = ROOT / ".claude" / "agents"
-    mistyped = [p.name for p in agents_dir.glob("*.md.*")
+    # `.toml.txt` 로 잘못 저장된 파일 잡기. 탐색기가 확장자를 숨기면 눈으로는 구별이 안 된다.
+    agents_dir = ROOT / ".codex" / "agents"
+    mistyped = [p.name for p in agents_dir.glob("*.toml.*")
                 if not p.name.startswith("_")] if agents_dir.is_dir() else []
-    checks.append(("직원 파일 확장자가 .md 다", not mistyped,
+    checks.append(("직원 파일 확장자가 .toml이다", not mistyped,
                    "정상" if not mistyped
-                   else "이름 끝을 .md 로 고치세요: " + ", ".join(mistyped)))
+                   else "이름 끝을 .toml로 고치세요: " + ", ".join(mistyped)))
 
     checks.append(("slack-server 폴더가 있다", srv.is_dir(), str(srv.relative_to(ROOT))))
     checks.append(("server.py 가 있다", (srv / "server.py").is_file(), "server.py"))
@@ -347,8 +354,8 @@ def module_4():
             k = line.split("=", 1)[0].strip()
             if k and not k.startswith("#"):
                 keys.add(k.upper())
-    need = {"SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"}
-    checks.append(("슬랙 열쇠 2개를 넣었다", need.issubset(keys),
+    need = {"SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "OWNER_USER_ID"}
+    checks.append(("슬랙 열쇠 2개와 내 멤버 ID를 넣었다", need.issubset(keys),
                    "정상" if need.issubset(keys) else "빠진 항목: " + ", ".join(sorted(need - keys))))
 
     # 🔒 값의 "모양"만 본다. 값 자체는 화면에 절대 찍지 않는다.
@@ -374,7 +381,10 @@ def module_4():
                 other = "xapp-" if head == "xoxb-" else "xoxb-"
                 hint = f"{other} 을 여기 넣으신 것 같습니다" if v.startswith(other) else f"{head} 로 시작해야 합니다"
                 shape.append(f"{key}: {hint}")
-        checks.append(("열쇠 모양이 맞다 (xoxb / xapp)", not shape,
+        owner = vals.get("OWNER_USER_ID", "").strip()
+        if not owner.startswith("U"):
+            shape.append("OWNER_USER_ID: U로 시작하는 내 슬랙 멤버 ID를 넣으세요")
+        checks.append(("열쇠·멤버 ID 모양이 맞다", not shape,
                        "정상" if not shape else " / ".join(shape)))
 
         # 메모장으로 저장하면 맨 앞에 안 보이는 표식(BOM)이 붙는다. server.py 는 견디지만

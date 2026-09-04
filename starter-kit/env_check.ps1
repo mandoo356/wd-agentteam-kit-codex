@@ -2,9 +2,9 @@
   env_check.ps1 — 「에이전트팀 만들기 과정」 출발선 자동 점검
 
   무엇을 하나
-    1) 필요한 프로그램(Node·Python·Git·Claude Code…)이 깔렸는지, 버전이 맞는지 본다
+    1) 필요한 프로그램(Node·Python·Git·Codex CLI…)이 깔렸는지, 버전이 맞는지 본다
     2) 빠진 것은 winget / npm / pip 으로 자동 설치한다 (묻고 진행)
-    3) 로그인이 필요한 것(Claude Code·슬랙 열쇠·Google Flow·네이버)은 그 화면을 바로 띄운다
+    3) 로그인이 필요한 것(Codex CLI·슬랙 열쇠·Google Flow·네이버)은 그 화면을 바로 띄운다
     4) 결과 체크리스트를 검은 창과 HTML(환경점검_결과.html)로 보여준다
 
   실행
@@ -18,7 +18,7 @@
     -NoPause          끝나고 Enter 대기 안 함
     -Yes              모든 질문에 Y
     -PretendMissing   테스트용 — 특정 항목을 "없는 것"으로 가정
-                      예) -PretendMissing node,git,claude-login
+                      예) -PretendMissing node,git,codex-login
 
   🔒 이 파일은 .env 의 열쇠 값을 절대 읽어 화면에 찍지 않습니다. 키 이름과 모양만 봅니다.
   🔒 로그인은 항상 사람이 직접 합니다. 비밀번호를 대신 입력하지 않습니다.
@@ -77,10 +77,16 @@ function Invoke-Cmd {
     param([string]$Line, [int]$TimeoutSec = 30)
     $tmp = [IO.Path]::GetTempFileName()
     try {
-        $p = Start-Process -FilePath $env:ComSpec -ArgumentList "/d /s /c `"$Line 2>&1`"" `
-                -RedirectStandardOutput $tmp -NoNewWindow -PassThru
-        # PowerShell 5.1 함정: Handle 을 먼저 읽어두지 않으면 ExitCode 가 $null 로 나온다.
-        $null = $p.Handle
+        # Start-Process는 일부 자동화 환경에서 Path/PATH 중복 때문에 실패한다.
+        # ProcessStartInfo는 그 환경도 그대로 넘길 수 있어 강의 PC와 자동 검증 양쪽에서 안전하다.
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = $env:ComSpec
+        $psi.Arguments = "/d /s /c `"$Line > `"`"$tmp`"`" 2>&1`""
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
+        $p = New-Object System.Diagnostics.Process
+        $p.StartInfo = $psi
+        $null = $p.Start()
         if (-not $p.WaitForExit($TimeoutSec * 1000)) {
             try { $p.Kill() } catch {}
             return @{ ok = $false; code = -2; out = '(시간 초과)' }
@@ -158,7 +164,7 @@ function Is-Ok([string]$Id) { $r = Get-Result $Id; return ($r -and $r.Ok) }
 
 # ── 3. 개별 검사 ─────────────────────────────────────────────
 function Check-Internet {
-    foreach ($h in 'claude.ai', 'nodejs.org', 'www.google.com') {
+    foreach ($h in 'chatgpt.com', 'nodejs.org', 'www.google.com') {
         try {
             $c = New-Object Net.Sockets.TcpClient
             $ar = $c.BeginConnect($h, 443, $null, $null)
@@ -193,7 +199,7 @@ function Check-Npm {
     $r = Invoke-Cmd 'npm -v'
     $ok = ($r.ok -and $r.out -and (Get-Ver $r.out) -ne $null)
     $d = 'Node.js 를 깔면 같이 들어옵니다'; if ($ok) { $d = 'npm ' + (First-Line $r.out) }
-    Set-Result 'npm' 'npm (Claude Code 설치용)' '필수' $ok $d 'Node.js 다시 설치' 'https://nodejs.org/ko/download'
+    Set-Result 'npm' 'npm (Codex CLI 설치용)' '필수' $ok $d 'Node.js 다시 설치' 'https://nodejs.org/ko/download'
 }
 
 function Check-Python {
@@ -233,52 +239,41 @@ function Check-Git {
     Set-Result 'git' 'Git' '필수' $ok $d 'git-scm.com 에서 설치 (기본값으로 Next 만)' 'https://git-scm.com/download/win'
 }
 
-function Check-Claude {
-    $exe = Has-Cmd 'claude'
-    if (-not $exe) { $exe = Has-Cmd 'claude.cmd' }
+function Check-Codex {
+    $exe = Has-Cmd 'codex.cmd'
+    if (-not $exe) { $exe = Has-Cmd 'codex.exe' }
+    if (-not $exe) { $exe = Has-Cmd 'codex' }
     if ($exe) {
-        $r = Invoke-Cmd 'claude --version' 40
+        $r = Invoke-Cmd 'codex.cmd --version' 40
         $d = First-Line $r.out; if (-not $d) { $d = $exe }
-        return (Set-Result 'claude' 'Claude Code 설치' '필수' $true $d)
+        return (Set-Result 'codex' 'Codex CLI 설치' '필수' $r.ok $d)
     }
-    $codex = Has-Cmd 'codex'
-    if ($codex) { return (Set-Result 'claude' 'Claude Code 설치' '필수' $true "codex 로 대체 확인 ($codex) — 수업은 Claude Code 기준") }
-    Set-Result 'claude' 'Claude Code 설치' '필수' $false '설치 안 됨' 'npm install -g @anthropic-ai/claude-code' 'https://docs.claude.com/en/docs/claude-code/setup'
+    Set-Result 'codex' 'Codex CLI 설치' '필수' $false '설치 안 됨' 'npm install -g @openai/codex' 'https://learn.chatgpt.com/docs/codex'
 }
 
-function Check-ClaudeLogin([switch]$Quiet) {
-    if (-not (Is-Ok 'claude')) {
+function Check-CodexLogin([switch]$Quiet) {
+    if (-not (Is-Ok 'codex')) {
         if ($Quiet) { return $false }
-        return (Set-Result 'claude-login' 'Claude Code 로그인 (claude.ai 유료 계정)' '필수' $false 'Claude Code 먼저 설치' '' 'https://claude.ai/')
+        return (Set-Result 'codex-login' 'Codex CLI 로그인 (ChatGPT 계정)' '필수' $false 'Codex CLI 먼저 설치' '' 'https://chatgpt.com/')
     }
-    $r = Invoke-Cmd 'claude auth status' 40
+    $r = Invoke-Cmd 'codex.cmd login status' 40
     $logged = $false; $d = '로그인 안 됨'
-    try {
-        $j = $r.out | ConvertFrom-Json
-        if ($j.loggedIn -eq $true) {
-            $logged = $true
-            $d = "로그인됨"
-            if ($j.email) { $d += " — $($j.email)" }
-            if ($j.subscriptionType) { $d += " ($($j.subscriptionType))" }
-        }
-    } catch {
-        if ($r.out -match '"loggedIn"\s*:\s*true') { $logged = $true; $d = '로그인됨' }
-    }
+    if ($r.ok -and $r.out -match 'Logged in|로그인') { $logged = $true; $d = First-Line $r.out }
     if ($Quiet) { return $logged }
-    Set-Result 'claude-login' 'Claude Code 로그인 (claude.ai 유료 계정)' '필수' $logged $d 'claude auth login' 'https://claude.ai/'
+    Set-Result 'codex-login' 'Codex CLI 로그인 (ChatGPT 계정)' '필수' $logged $d 'codex.cmd login' 'https://chatgpt.com/'
 }
 
 function Check-PyPackages {
-    $req = @('slack_bolt', 'slack_sdk', 'aiohttp', 'dotenv', 'claude_agent_sdk')
+    $req = @('slack_bolt', 'slack_sdk', 'aiohttp', 'dotenv')
     if (-not (Is-Ok 'python')) {
-        Set-Result 'pypkg' '파이썬 꾸러미 5개 (slack-bolt·slack-sdk·aiohttp·python-dotenv·claude-agent-sdk)' '필수' $false 'Python 먼저'
+        Set-Result 'pypkg' '파이썬 꾸러미 4개 (slack-bolt·slack-sdk·aiohttp·python-dotenv)' '필수' $false 'Python 먼저'
         Set-Result 'playwright' 'playwright 패키지 (블로그·이미지 스킬용)' '선택' $false 'Python 먼저'
         return
     }
     $tmp = Join-Path $env:TEMP 'wd_envcheck_mods.py'
     @'
 import importlib.util as u
-mods = ["slack_bolt","slack_sdk","aiohttp","dotenv","claude_agent_sdk","playwright"]
+mods = ["slack_bolt","slack_sdk","aiohttp","dotenv","playwright"]
 print(" ".join(m + "=" + ("O" if u.find_spec(m) else "X") for m in mods))
 '@ | Set-Content -Path $tmp -Encoding ASCII
     $r = Invoke-Cmd "$($script:PY) `"$tmp`"" 40
@@ -289,21 +284,38 @@ print(" ".join(m + "=" + ("O" if u.find_spec(m) else "X") for m in mods))
     }
     foreach ($m in $req) { if (-not $have[$m]) { $missing += $m } }
     if ($have.Count -eq 0) {
-        Set-Result 'pypkg' '파이썬 꾸러미 5개 (slack-bolt·slack-sdk·aiohttp·python-dotenv·claude-agent-sdk)' '필수' $false "확인 실패: $(First-Line $r.out)"
+        Set-Result 'pypkg' '파이썬 꾸러미 4개 (slack-bolt·slack-sdk·aiohttp·python-dotenv)' '필수' $false "확인 실패: $(First-Line $r.out)"
         Set-Result 'playwright' 'playwright 패키지 (블로그·이미지 스킬용)' '선택' $false '확인 실패'
         return
     }
-    $d = '5개 모두 설치됨'; if ($missing.Count) { $d = '빠짐: ' + ($missing -join ', ') }
-    Set-Result 'pypkg' '파이썬 꾸러미 5개 (slack-bolt·slack-sdk·aiohttp·python-dotenv·claude-agent-sdk)' '필수' ($missing.Count -eq 0) $d "py -3 -m pip install -r slack-server\requirements.txt"
+    $d = '4개 모두 설치됨'; if ($missing.Count) { $d = '빠짐: ' + ($missing -join ', ') }
+    Set-Result 'pypkg' '파이썬 꾸러미 4개 (slack-bolt·slack-sdk·aiohttp·python-dotenv)' '필수' ($missing.Count -eq 0) $d "py -3 -m pip install -r slack-server\requirements.txt"
     $pd = 'pip install playwright'; if ($have['playwright']) { $pd = '설치됨' }
     Set-Result 'playwright' 'playwright 패키지 (블로그·이미지 스킬용)' '선택' ([bool]$have['playwright']) $pd 'py -3 -m pip install playwright'
 }
 
 function Check-Folders {
-    $need = @('.claude\agents', '.claude\skills', 'workspace\inbox', 'workspace\memory', 'slack-server\server.py', '점검.py')
+    $need = @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'slack-server\server.py', '점검.py')
     $missing = @($need | Where-Object { -not (Test-Path (Join-Path $KIT $_)) })
     $d = "정상 — $KIT"; if ($missing.Count) { $d = '없음: ' + ($missing -join ', ') + ' — 스타터킷 압축을 다시 푸세요' }
     Set-Result 'folders' '스타터킷 폴더 구조' '필수' ($missing.Count -eq 0) $d
+}
+
+function Check-MyData {
+    # 표준 설치(C:\Agent\01_KIT\starter-kit)면 두 단계 위가 회사 건물 — 그 안의 MyData\ 를 센다
+    $root = Split-Path -Parent $COURSE
+    $base = Join-Path $root 'MyData'
+    if ((Split-Path -Leaf $COURSE) -ne '01_KIT' -or -not (Test-Path $base)) {
+        Set-Result 'mydata' '내 자료 (제안서 3·블로그 3·로고 1)' '선택' $false 'MyData 폴더 없음 — 표준 설치가 아니면 건너뜁니다'
+        return
+    }
+    $n = @{}
+    foreach ($k in 'Proposal','Blog','Logo','Profile') {
+        $n[$k] = @(Get-ChildItem -LiteralPath (Join-Path $base $k) -File -ErrorAction SilentlyContinue).Count
+    }
+    $ok = ($n['Proposal'] -ge 3) -and ($n['Blog'] -ge 3) -and ($n['Logo'] -ge 1)
+    $d = "제안서(Proposal) $($n['Proposal'])개 · 블로그(Blog) $($n['Blog'])개 · 로고(Logo) $($n['Logo'])개 · 프로필(Profile) $($n['Profile'])개 — $base"
+    Set-Result 'mydata' '내 자료 (제안서 3·블로그 3·로고 1)' '선택' $ok $d "$base 에 파일을 넣으세요 (모듈 3.5 전까지)"
 }
 
 function Check-SlackEnv {
@@ -336,8 +348,13 @@ function Check-SlackEnv {
             if ($v.StartsWith($other)) { $problems += "$key 자리에 $other 가 들어갔습니다 (둘이 바뀜)" } else { $problems += "$key 는 $head 로 시작해야 합니다" }
         }
     }
-    $d = '열쇠 2개 모양 정상 (값은 확인하지 않습니다)'; if ($problems.Count) { $d = $problems -join ' / ' }
-    Set-Result 'slack' '슬랙 열쇠 2개 (.env) — 모듈 4 전까지' '필수' ($problems.Count -eq 0) $d $fix $url
+    $yolo = -not ($vals.ContainsKey('CODEX_YOLO') -and $vals['CODEX_YOLO'].Trim().ToLower() -in @('0','false','no','off'))
+    if ($yolo) {
+        $owner = ''; if ($vals.ContainsKey('OWNER_USER_ID')) { $owner = $vals['OWNER_USER_ID'].Trim() }
+        if (-not $owner.StartsWith('U')) { $problems += 'YOLO 모드에서는 OWNER_USER_ID(U로 시작)를 반드시 넣으세요' }
+    }
+    $d = '열쇠 2개·YOLO 사용자 제한 정상 (값은 저장하지 않습니다)'; if ($problems.Count) { $d = $problems -join ' / ' }
+    Set-Result 'slack' '슬랙 열쇠 2개·내 멤버 ID (.env) — 모듈 4 전까지' '필수' ($problems.Count -eq 0) $d $fix $url
 }
 
 function Check-VSCode {
@@ -355,7 +372,7 @@ function Check-Chrome {
 }
 
 function Check-FlowLogin {
-    $prof = Join-Path $USERHOME '.claude\.image-flow-profile'
+    $prof = Join-Path $USERHOME '.codex\.image-flow-profile'
     $ok = (Test-Path $prof) -and (@(Get-ChildItem $prof -Force -ErrorAction SilentlyContinue).Count -gt 0)
     $d = '아직 로그인 안 함 (Gemini 구독 계정 필요, 세션 약 8시간)'; if ($ok) { $d = "로그인 기록 있음 — $prof" }
     Set-Result 'flow-login' 'Google Flow 로그인 (이미지 스킬)' '선택' $ok $d 'py -3 flow-image-JJ\scripts\flow_login.py' 'https://labs.google/fx/tools/flow'
@@ -404,35 +421,35 @@ function Fix-Programs {
     }
 }
 
-function Fix-Claude {
-    if (Is-Ok 'claude') { return }
-    if (-not (Is-Ok 'npm')) { Write-Warn 'npm 이 없어 Claude Code 를 설치할 수 없습니다. Node.js 부터.'; return }
-    if ($SkipInstall) { Write-Info '(-SkipInstall) Claude Code 설치 생략'; return }
-    Write-Step 'Claude Code 설치'
-    if (Ask-YesNo 'npm install -g @anthropic-ai/claude-code 를 지금 실행할까요? (약 610MB)') {
-        try { & npm install -g @anthropic-ai/claude-code } catch { Write-Warn "npm 실패: $_" }
+function Fix-Codex {
+    if (Is-Ok 'codex') { return }
+    if (-not (Is-Ok 'npm')) { Write-Warn 'npm 이 없어 Codex CLI 를 설치할 수 없습니다. Node.js 부터.'; return }
+    if ($SkipInstall) { Write-Info '(-SkipInstall) Codex CLI 설치 생략'; return }
+    Write-Step 'Codex CLI 설치'
+    if (Ask-YesNo 'npm install -g @openai/codex 를 지금 실행할까요?') {
+        try { & npm.cmd install -g '@openai/codex' } catch { Write-Warn "npm 실패: $_" }
         Refresh-Path
-        Check-Claude | Out-Null
+        Check-Codex | Out-Null
     }
 }
 
-function Fix-ClaudeLogin {
-    if ((Is-Ok 'claude-login') -or -not (Is-Ok 'claude')) { return }
+function Fix-CodexLogin {
+    if ((Is-Ok 'codex-login') -or -not (Is-Ok 'codex')) { return }
     if ($SkipLogin) { Write-Info '(-SkipLogin) 로그인 생략'; return }
-    Write-Step 'Claude Code 로그인 — 새 창과 브라우저가 열립니다'
-    Write-Info '브라우저에서 claude.ai 계정(유료 구독)으로 로그인하고, 코드가 나오면 검은 창에 붙여넣으세요.'
+    Write-Step 'Codex CLI 로그인 — 새 창과 브라우저가 열립니다'
+    Write-Info '브라우저에서 본인의 ChatGPT 계정으로 로그인하세요. 무료 계정도 가능하지만 사용량 제한이 있습니다.'
     Write-Info '이 창은 로그인이 끝나는 걸 자동으로 감지합니다 (최대 10분).'
-    Open-NewWindow 'Claude-Code-로그인' 'claude auth login'
+    Open-NewWindow 'Codex-로그인' 'codex.cmd login'
     $deadline = (Get-Date).AddMinutes(10)
     $logged = $false
     while ((Get-Date) -lt $deadline) {
-        if (Check-ClaudeLogin -Quiet) { $logged = $true; break }
+        if (Check-CodexLogin -Quiet) { $logged = $true; break }
         Write-Host -NoNewline '.' -ForegroundColor DarkGray
         Start-Sleep -Seconds 5
     }
     Write-Host ''
     if (-not $logged) { Write-Warn '10분 안에 로그인이 확인되지 않았습니다. 로그인 후 다시 실행하세요.' }
-    Check-ClaudeLogin | Out-Null
+    Check-CodexLogin | Out-Null
 }
 
 function Fix-PyPackages {
@@ -440,7 +457,7 @@ function Fix-PyPackages {
     if ($SkipInstall) { Write-Info '(-SkipInstall) 꾸러미 설치 생략'; return }
     $req = Join-Path $KIT 'slack-server\requirements.txt'
     if (-not (Test-Path $req)) { Write-Warn "requirements.txt 가 없습니다: $req"; return }
-    Write-Step '파이썬 꾸러미 5개 설치'
+    Write-Step '파이썬 꾸러미 4개 설치'
     if (Ask-YesNo "$($script:PY) -m pip install -r slack-server\requirements.txt 를 지금 실행할까요?") {
         $parts = @($script:PY -split ' ')
         $pyArgs = @(); if ($parts.Count -gt 1) { $pyArgs = @($parts[1..($parts.Count - 1)]) }
@@ -607,15 +624,15 @@ Check-Npm | Out-Null
 Check-Python | Out-Null
 Check-Pip | Out-Null
 Check-Git | Out-Null
-Check-Claude | Out-Null
+Check-Codex | Out-Null
 Check-VSCode | Out-Null
 Check-Chrome | Out-Null
 Fix-Programs
-Fix-Claude
+Fix-Codex
 
-Write-Step '3/6 Claude Code 로그인'
-Check-ClaudeLogin | Out-Null
-Fix-ClaudeLogin
+Write-Step '3/6 Codex CLI 로그인'
+Check-CodexLogin | Out-Null
+Fix-CodexLogin
 
 Write-Step '4/6 파이썬 꾸러미'
 Check-PyPackages | Out-Null
@@ -623,6 +640,7 @@ Fix-PyPackages
 
 Write-Step '5/6 스타터킷 · 슬랙'
 Check-Folders | Out-Null
+Check-MyData | Out-Null
 Check-SlackEnv | Out-Null
 Fix-Slack
 
@@ -654,3 +672,6 @@ Write-Info ("소요 {0:n0}초" -f ((Get-Date) - $STARTED).TotalSeconds)
 
 if (-not $NoPause) { $null = Read-Host '  창을 닫으려면 Enter' }
 if ($reqOk -eq $req.Count) { exit 0 } else { exit 1 }
+
+
+

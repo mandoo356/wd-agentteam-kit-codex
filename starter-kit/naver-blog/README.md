@@ -1,7 +1,7 @@
 # 네이버 블로그 임시저장 자동화
 
 블로그 초안(`.md`)을 **네이버 블로그 임시저장함**에 자동으로 넣는 도구입니다.
-Claude in Chrome 확장은 `blog.naver.com` 을 허용하지 않아서, 전용 Chrome
+Codex in Chrome 확장은 `blog.naver.com` 을 허용하지 않아서, 전용 Chrome
 프로필을 Playwright로 직접 띄우는 방식으로 만들어졌습니다.
 
 **발행(공개)은 하지 않습니다.** 임시저장까지만 자동입니다.
@@ -57,7 +57,7 @@ py -3 naver_draft.py draft --blog-id 내블로그아이디 --title "제목" --bo
 | | Gemini 자동생성 (`gen_image.py`) | Google Flow 배치생성 (`flow-image-JJ` 스킬) |
 |---|---|---|
 | 비용 | 유료 API (장당 몇 센트) | 계정만 있으면 무료(일일 한도 있음) |
-| 방식 | 완전 자동 — `draft` 실행 시 알아서 생성·삽입 | Claude에게 "구글 플로우로 이미지 만들어줘"라고 시켜서 파일로 받은 뒤 `--images` 로 넘김 |
+| 방식 | 완전 자동 — `draft` 실행 시 알아서 생성·삽입 | Codex에게 "구글 플로우로 이미지 만들어줘"라고 시켜서 파일로 받은 뒤 `--images` 로 넘김 |
 | 준비물 | `.env` 에 `GOOGLE_API_KEY` (결제 등록된 구글 클라우드 프로젝트) | `flow-image-JJ` 스킬 설치 + 본인 구글 계정 최초 로그인 |
 
 **Gemini로 자동생성**하려면 이 폴더에 `.env` 파일을 만들고 한 줄만 적으세요.

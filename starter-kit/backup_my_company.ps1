@@ -1,4 +1,4 @@
-<#
+﻿<#
   Learner backup tool.
   Backs up authored work only. Never includes .env, tokens, login profiles, or dependencies.
   ASCII source is intentional for Windows PowerShell 5 compatibility.
@@ -26,8 +26,9 @@ $stage = Join-Path ([IO.Path]::GetTempPath()) ("wd-backup-" + [guid]::NewGuid().
 
 $items = @(
     @{ Source = (Join-Path $kit 'workspace'); Destination = 'workspace' },
-    @{ Source = (Join-Path $kit '.claude\agents'); Destination = '.claude\agents' },
-    @{ Source = (Join-Path $kit '.claude\skills'); Destination = '.claude\skills' },
+    @{ Source = (Join-Path $kit '.codex\agents'); Destination = '.codex\agents' },
+    @{ Source = (Join-Path $kit '.agents\skills'); Destination = '.agents\skills' },
+    @{ Source = (Join-Path $kit 'AGENTS.md'); Destination = 'AGENTS.md' },
     @{ Source = (Join-Path $kit 'office\company.config.ts'); Destination = 'office\company.config.ts' },
     @{ Source = (Join-Path $kit 'README.md'); Destination = 'README.md' }
 )
@@ -49,12 +50,12 @@ try {
         '1. Install a clean starter-kit on the new PC.',
         '2. Close the Slack server and virtual office.',
         '3. Extract this ZIP.',
-        '4. Copy workspace, .claude, and office into the installed starter-kit; allow overwrite.',
+        '4. Copy workspace, .codex, .agents, AGENTS.md, and office into the installed starter-kit; allow overwrite.',
         '5. Recreate slack-server/.env and sign in again. Secrets and login state are intentionally not backed up.'
     ) | Set-Content -LiteralPath (Join-Path $stage 'RESTORE.txt') -Encoding ASCII
 
     $forbidden = @(Get-ChildItem -LiteralPath $stage -File -Force -Recurse | Where-Object {
-        $_.Name -in @('.env', '.agent_session.json', '.naver-state.json') -or $_.Extension -eq '.pyc'
+        $_.Name -in @('.env', '.codex_session.json', '.naver-state.json') -or $_.Extension -eq '.pyc'
     })
     if ($forbidden.Count -gt 0) { throw 'Backup safety check failed: forbidden private file found.' }
 
@@ -71,3 +72,5 @@ try {
 } finally {
     if (Test-Path -LiteralPath $stage) { Remove-Item -LiteralPath $stage -Recurse -Force }
 }
+
+

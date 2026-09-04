@@ -6,6 +6,8 @@ naver-blog/.env
 naver-blog/.naver-state.json
 naver-blog/.naver-profile/
 .image-flow-profile/
+.codex_session.json
+slack-server/.codex_session.json
 
 # 실행 중 생기는 것
 환경점검_결과.html

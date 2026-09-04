@@ -30,10 +30,10 @@ version: 1.0
 #         저장 경로: workspace/결과물/<날짜>_<강사명>_프로필.html
 
 # STEP 3. QA 게이트 ① 자동 검사 — PASS 전 완료 선언 금지
-py -3 .claude/skills/프로필/scripts/validate.py workspace/결과물/<파일명>.html
+py -3 .agents/skills/프로필/scripts/validate.py workspace/결과물/<파일명>.html
 
 # STEP 4. QA 게이트 ② 육안 검사 — 전 슬라이드 캡처 후 직접 확인 (필수)
-py -3 .claude/skills/프로필/scripts/qa_screenshot.py workspace/결과물/<파일명>.html
+py -3 .agents/skills/프로필/scripts/qa_screenshot.py workspace/결과물/<파일명>.html
 
 # STEP 5. 전달 — 파일 경로와 슬라이드 장수를 사용자에게 보고한다.
 ```

@@ -30,18 +30,18 @@ Flow에는 공개 API가 없으므로 전용 크롬 프로필에 로그인 세�
 이 스킬은 **사용자 본인의 Google 계정**으로 동작한다. 설치 후 반드시 계정을 1개 이상 등록해야 한다.
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/flow_login.py
+python ~/.agents/skills/flow-image-JJ/scripts/flow_login.py
 ```
 
 크롬 창이 뜨면 **사용자가 직접** 본인 Google 계정으로 로그인한다
 (에이전트는 자격증명을 절대 대신 입력하지 않는다 — 창을 띄운 뒤 사용자에게 로그인을 요청할 것).
-세션은 `~/.claude/.image-flow-profile` 에 저장되며 **약 8시간** 유효하다.
+세션은 `~/.codex/.image-flow-profile` 에 저장되며 **약 8시간** 유효하다.
 만료되면 같은 명령을 다시 실행한다.
 
 세션 유효 여부만 빠르게 확인하려면:
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/flow_probe.py
+python ~/.agents/skills/flow-image-JJ/scripts/flow_probe.py
 ```
 
 ### (선택) 계정을 여러 개 등록해 병렬로 쓰기
@@ -51,10 +51,10 @@ python ~/.claude/skills/flow-image-JJ/scripts/flow_probe.py
 
 ```bash
 # 두 번째 계정 등록 (창이 뜨면 그 계정으로 로그인)
-IMAGE_FLOW_PROFILE="$HOME/.claude/.image-flow-profile-2" python .../scripts/flow_login.py
+IMAGE_FLOW_PROFILE="$HOME/.codex/.image-flow-profile-2" python .../scripts/flow_login.py
 
 # 두 번째 계정으로 생성
-IMAGE_FLOW_PROFILE="$HOME/.claude/.image-flow-profile-2" python .../scripts/flow_generate.py --prompts b.txt --out ./out-b
+IMAGE_FLOW_PROFILE="$HOME/.codex/.image-flow-profile-2" python .../scripts/flow_generate.py --prompts b.txt --out ./out-b
 ```
 
 🔴 **같은 프로필로 두 작업을 동시에 돌리지 말 것.** 크롬은 하나의 user-data-dir을
@@ -72,7 +72,7 @@ IMAGE_FLOW_PROFILE="$HOME/.claude/.image-flow-profile-2" python .../scripts/flow
 **(A) 먼저 스타일 대시보드를 새 창으로 연다 — 질문보다 먼저다.**
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/show_styles.py
+python ~/.agents/skills/flow-image-JJ/scripts/show_styles.py
 ```
 
 이 스크립트가 https://jj-aiedu.vercel.app/style/card-styles.html 을 기본 브라우저로 연다.
@@ -117,7 +117,7 @@ python ~/.claude/skills/flow-image-JJ/scripts/show_styles.py
 (Flow는 에이전트 주도형이라 접두어가 없으면 생성은 돌지만 이미지가 0장 나오는 경우가 있다 — 실측).
 
 ```bash
-python ~/.claude/skills/flow-image-JJ/scripts/flow_generate.py \
+python ~/.agents/skills/flow-image-JJ/scripts/flow_generate.py \
   --prompts prompts.txt \
   --model nano-banana-2 \
   --ratio 1:1 \

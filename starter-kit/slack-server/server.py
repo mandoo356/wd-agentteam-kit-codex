@@ -1,4 +1,4 @@
-"""내 AI 회사 — 슬랙 서버.
+"""내 AI 회사 — Codex 슬랙 서버.
 
 슬랙에 말을 걸면 → 이 프로그램이 받아서 → 직원(에이전트)을 깨우고 → 답을 슬랙에 올립니다.
 
@@ -24,7 +24,7 @@ from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.socket_mode.async_handler import AsyncSocketModeHandler
 
 from agent_channels import resolve_agent
-from claude_bridge import find_claude_cli, invoke_agent
+from codex_bridge import find_codex_cli, invoke_agent
 from personas import (
     PERSONAS, INTRO_ORDER, CLASS_OPENING, CLASS_CLOSING,
     get_persona, get_intro,
@@ -39,14 +39,20 @@ KIT_ROOT = HERE.parent                       # 스타터킷 폴더
 # "열쇠가 비어 있다"고 나온다. 값은 멀쩡히 들어 있는데도. 강의장에서 제일 잡기 어려운 종류다.
 load_dotenv(HERE / ".env", encoding="utf-8-sig")
 
-MISSING = [k for k in ("SLACK_BOT_TOKEN", "SLACK_APP_TOKEN")
+YOLO_ENABLED = os.environ.get("CODEX_YOLO", "1").strip().lower() not in {
+    "0", "false", "no", "off"
+}
+REQUIRED_ENV = ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"]
+if YOLO_ENABLED:
+    REQUIRED_ENV.append("OWNER_USER_ID")
+MISSING = [k for k in REQUIRED_ENV
            if not os.environ.get(k, "").strip()]
 if MISSING:
     print()
     print("  ❌ .env 에 이게 비어 있습니다: " + ", ".join(MISSING))
     print()
     print("  1) slack-server 폴더의 .env.example 을 복사해서 .env 로 이름을 바꾸고")
-    print("  2) 사전 안내문에서 받은 열쇠 2개를 붙여넣으세요.")
+    print("  2) 슬랙 열쇠 2개와 내 멤버 ID를 붙여넣으세요.")
     print()
     sys.exit(1)
 
@@ -72,23 +78,26 @@ if not WORKSPACE.exists():
     sys.exit(1)
 
 try:
-    CLAUDE_CLI = find_claude_cli(os.environ.get("CLAUDE_CLI") or None)
+    CODEX_CLI = find_codex_cli(os.environ.get("CODEX_CLI") or None)
 except Exception as e:
     print(f"\n  ❌ {e}\n")
     sys.exit(1)
 
-AGENT_COUNT = len(list((KIT_ROOT / ".claude" / "agents").glob("*.md")))
+AGENT_COUNT = len(list((KIT_ROOT / ".codex" / "agents").glob("*.toml")))
 
 log.info("스타터킷: %s", KIT_ROOT)
 log.info("결과물 저장 위치: %s", WORKSPACE)
-log.info("claude 명령어: %s", CLAUDE_CLI)
+log.info("codex 명령어: %s", CODEX_CLI)
+if YOLO_ENABLED:
+    log.warning("⚠️ Codex YOLO 모드: 확인창 없이 전체 권한으로 실행됩니다")
+else:
+    log.info("Codex 제한 모드: workspace-write로 실행됩니다")
 log.info("직원 파일: %d개", AGENT_COUNT)
 if AGENT_COUNT == 0:
-    log.warning("⚠️  .claude/agents/ 에 직원이 한 명도 없습니다 — 모듈 1을 먼저 하세요")
+    log.warning("⚠️  .codex/agents/ 에 직원이 한 명도 없습니다 — 모듈 1을 먼저 하세요")
 
-# 🔒 직원은 파일을 읽고 쓸 수 있는 권한(bypassPermissions)으로 실행된다. OWNER_USER_ID가
-# 비어 있으면 이 워크스페이스에서 봇에게 말을 걸 수 있는 사람 누구나 그 권한을 쓴다 —
-# DM은 원래 나 혼자지만, 채널에 초대(/invite)하면 그 채널의 다른 사람도 포함된다.
+# 🔒 YOLO에서는 확인창 없이 전체 권한으로 실행되므로 OWNER_USER_ID를 필수로 검사한다.
+# 제한 모드(CODEX_YOLO=0)에서는 비워도 되지만, 채널에 초대했다면 채우는 편이 안전하다.
 if OWNER_USER_ID:
     log.info("본인 확인: OWNER_USER_ID 설정됨 — 그 외 사용자는 응답만 받고 실행은 거절됩니다")
 else:
@@ -171,14 +180,14 @@ def explain_failure(e: BaseException) -> str:
     """오류를 사람이 뭘 해야 할지 아는 말로 바꾼다."""
     name = type(e).__name__
     msg = str(e)
-    if "not found" in msg.lower() and "claude" in msg.lower():
-        return ("❌ claude 명령어를 못 찾았습니다.\n"
-                "검은 창에서 `claude` 라고 쳐보세요. 반응이 없으면 설치가 안 된 겁니다.")
+    if "not found" in msg.lower() and "codex" in msg.lower():
+        return ("❌ codex 명령어를 못 찾았습니다.\n"
+                "검은 창에서 `codex.cmd`라고 쳐보세요. 반응이 없으면 설치가 안 된 겁니다.")
     if name in ("TimeoutError", "asyncio.TimeoutError") or "timeout" in msg.lower():
         return ("⏳ 시간이 너무 오래 걸려서 멈췄습니다.\n"
                 "일이 큰 경우입니다. 더 작게 쪼개서 다시 시켜보세요.")
     if "connection" in msg.lower() or "connect" in name.lower():
-        return ("🔌 Claude 와 연결이 끊겼습니다.\n"
+        return ("🔌 Codex와 연결이 끊겼습니다.\n"
                 "검은 창을 껐다 켜보세요 (Ctrl+C 후 `py -3 server.py`).")
     return f"❌ 오류가 났습니다: {name}\n자세한 내용은 slack-server/logs/server.log 에 있습니다."
 
@@ -235,7 +244,7 @@ async def on_message(event, client, say):
     channel_name = "" if channel_type == "im" else await get_channel_name(client, channel_id)
 
     # 🔒 OWNER_USER_ID가 설정돼 있으면 그 사람 말고는 직원을 실행시킬 수 없다.
-    # 파일을 읽고 쓰는 권한(bypassPermissions)으로 도는 작업이라, 아무나 말을 걸어서
+    # 파일을 읽고 쓰는 권한(Codex YOLO)으로 도는 작업이라, 아무나 말을 걸어서
     # 실행되게 두면 안 된다. 설정을 안 했으면(빈 값) 예전처럼 누구든 받는다 — 그 위험은
     # 서버 켤 때 로그로 이미 경고했다.
     if OWNER_USER_ID and user_id != OWNER_USER_ID:
@@ -246,7 +255,7 @@ async def on_message(event, client, say):
         )
         return
 
-    # 인사는 Claude 를 거치지 않고 바로 답한다 (몇 초 vs 수십 초)
+    # 인사는 Codex 를 거치지 않고 바로 답한다 (몇 초 vs 수십 초)
     if is_class_intro(text):
         log.info("강의장 인사 요청: %s", user_id)
         await roll_call(client, channel_id, user_id, audience="class")
@@ -276,7 +285,7 @@ async def on_message(event, client, say):
     try:
         reply = await invoke_agent(
             agent=agent, user_message=text,
-            workspace=WORKSPACE, cli_path=CLAUDE_CLI,
+            workspace=WORKSPACE, cli_path=CODEX_CLI,
         ) or "(빈 응답)"
         bubbles = split_reply(reply) or [(None, "(빈 응답)")]
         await drop_ack()

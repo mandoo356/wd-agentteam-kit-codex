@@ -163,7 +163,7 @@ export const DEPARTMENTS = [
  * thoughts = 자리를 비웠을 때 머리 위에 뜨는 혼잣말
  *
  * 📌 지금은 팀마다 팀장 1명씩만 있는 견본입니다.
- *    .claude/agents/ 에 만든 직원 이름으로 바꾸고, 원하면 팀원을 늘리세요.
+ *    .codex/agents/ 에 만든 직원 이름으로 바꾸고, 원하면 팀원을 늘리세요.
  */
 export type StaffEntry = {
   dept: string;
