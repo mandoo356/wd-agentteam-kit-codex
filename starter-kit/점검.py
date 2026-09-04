@@ -200,6 +200,22 @@ def module_1():
     dupes = {n for n in names if names.count(n) > 1}
     checks.append(("직원 이름이 서로 겹치지 않는다", not dupes,
                    "정상" if not dupes else "겹침: " + ", ".join(sorted(dupes))))
+
+    # ── 2026-09-04 추가 — 브랜드 색이 facts.md 에 있는지 (P1 / P1-B) ──
+    # 제안서(P4)·교재(P8)·프로필(S7)이 전부 이 네 줄을 읽어 칠한다. 없으면 나중에 전부 남색 예시로 나온다.
+    facts = ROOT / "workspace" / "memory" / "facts.md"
+    ftxt = facts.read_text(encoding="utf-8", errors="ignore") if facts.is_file() else ""
+    hexes = {m.upper() for m in re.findall(r"#[0-9A-Fa-f]{6}\b", ftxt)}
+    sample = {"#12314B", "#1F5B8E", "#E9A23B", "#EAF1F8"}
+    if not facts.is_file():
+        hit, why = False, "facts.md 가 없습니다 — 카드 P1 을 붙여넣으세요"
+    elif len(hexes) < 3:
+        hit, why = False, f"색 hex 가 {len(hexes)}개뿐입니다 — 카드 P1 을 다시 붙여넣으세요 (진한·기본·강조·옅은)"
+    elif not (hexes - sample):
+        hit, why = True, "예시 남색 그대로입니다 — 카드 P1-B 로 내 색을 뽑으면 제안서·프로필이 내 브랜드 색으로 나옵니다"
+    else:
+        hit, why = True, f"내 브랜드 색 {len(hexes)}개 확인 ({', '.join(sorted(hexes))})"
+    checks.append(("브랜드 색 네 줄이 facts.md 에 있다", hit, why))
     return checks
 
 
