@@ -7,7 +7,7 @@
   - 현재 스타터킷을 01_KIT\starter-kit 으로 복사한다.
   - 이동을 느리게 하는 node_modules 및 재생성 파일은 복사하지 않는다.
   - 실제 비밀키와 로그인 상태는 복사하지 않는다.
-  - 기존 설치가 있으면 덮어쓰지 않는다.
+  - 기존 설치가 있으면 사용자 작업·비밀키는 보존하고 실행 파일은 최신 Codex판으로 갱신한다.
 #>
 [CmdletBinding()]
 param(
@@ -104,10 +104,34 @@ if (-not (Test-Path -LiteralPath $guide)) {
 Write-Info "MyData 안내문: $guide"
 
 Write-Step '가벼운 스타터킷 설치'
-if (Test-Path -LiteralPath $marker) {
-    Write-Host '  ⚠ 기존 스타터킷이 있어 덮어쓰지 않았습니다.' -ForegroundColor Yellow
-    Write-Info $targetKit
+$sourceFull = [IO.Path]::GetFullPath($sourceKit).TrimEnd('\')
+$targetFull = [IO.Path]::GetFullPath($targetKit).TrimEnd('\')
+$sameLocation = $sourceFull.Equals($targetFull, [StringComparison]::OrdinalIgnoreCase)
+$existingInstall = Test-Path -LiteralPath $marker
+
+if ($sameLocation) {
+    Write-Info '현재 폴더가 이미 표준 설치 위치라 복사를 생략합니다.'
 } else {
+    if ($existingInstall) {
+        Write-Host '  ↻ 기존 설치를 최신 Codex판으로 갱신합니다.' -ForegroundColor Yellow
+        Write-Info 'workspace·회사 설정·슬랙 열쇠·로그인 상태는 보존합니다.'
+
+        # 구형 Claude 실행 파일은 다시 실행되지 않도록 복구 가능한 백업 폴더로 옮긴다.
+        $legacyItems = @(
+            (Join-Path $targetKit ('.' + 'claude')),
+            (Join-Path $targetKit ('slack-server\' + 'claude' + '_bridge.py')),
+            (Join-Path $targetKit ('office\' + 'CLAUDE.md'))
+        ) | Where-Object { Test-Path -LiteralPath $_ }
+        if ($legacyItems.Count -gt 0) {
+            $legacyBackup = Join-Path $targetRoot ("04_LEARNER_BACKUP\Claude판_자동백업_" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+            $null = New-Item -ItemType Directory -Path $legacyBackup -Force
+            foreach ($item in $legacyItems) {
+                Move-Item -LiteralPath $item -Destination $legacyBackup -Force
+            }
+            Write-Info "구형 Claude 파일 $($legacyItems.Count)건 백업: $legacyBackup"
+        }
+    }
+
     $excludedDirs = @(
         (Join-Path $sourceKit 'office\node_modules'),
         (Join-Path $sourceKit 'office\dist'),
@@ -121,6 +145,20 @@ if (Test-Path -LiteralPath $marker) {
         (Join-Path $sourceKit 'backup')
     )
 
+    # 재설치·갱신 때 수강생이 이미 만든 작업물을 배포 예제로 덮지 않는다.
+    if ($existingInstall) {
+        $excludedDirs += (Join-Path $sourceKit 'workspace')
+    }
+
+    $excludedFiles = @(
+        '.env',
+        '.codex_session.json',
+        '.naver-state.json',
+        '환경점검_결과.html',
+        '*.pyc'
+    )
+    if ($existingInstall) { $excludedFiles += 'company.config.ts' }
+
     $copyArgs = @(
         $sourceKit,
         $targetKit,
@@ -133,13 +171,8 @@ if (Test-Path -LiteralPath $marker) {
         '/NP',
         '/XD'
     ) + $excludedDirs + @(
-        '/XF',
-        '.env',
-        '.codex_session.json',
-        '.naver-state.json',
-        '환경점검_결과.html',
-        '*.pyc'
-    )
+        '/XF'
+    ) + $excludedFiles
 
     & robocopy @copyArgs | Out-Null
     $copyCode = $LASTEXITCODE
@@ -152,7 +185,7 @@ if (Test-Path -LiteralPath $marker) {
 
     $installedFiles = Get-ChildItem -LiteralPath $targetKit -File -Force -Recurse
     $installedBytes = ($installedFiles | Measure-Object Length -Sum).Sum
-    Write-Host '  ✅ 스타터킷 복사 성공' -ForegroundColor Green
+    Write-Host '  ✅ 스타터킷 Codex판 갱신 성공' -ForegroundColor Green
     Write-Info ("{0}개 파일 / {1:N1}MB" -f $installedFiles.Count, ($installedBytes / 1MB))
 }
 

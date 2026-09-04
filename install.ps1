@@ -8,7 +8,7 @@
 #    1) 깃허브에서 스타터킷(약 3MB, node_modules·비밀키 없음)을 받는다
 #    2) C:\Agent\01_KIT\starter-kit 에 표준 설치한다 (install_starterkit.ps1)
 #       — 같이 만들어지는 C:\Agent\MyData\ 에 수강생이 제안서·블로그·로고를 미리 넣는다
-#    3) 환경점검(env_check.ps1)을 이어서 돌린다 — Node·Git·Claude Code 등은 여기서 명령어로 설치
+#    3) 환경점검(env_check.ps1)을 이어서 돌린다 — Node·Git·Codex CLI 설치와 ChatGPT 로그인을 진행
 #
 #  테스트·강사용 환경변수 (선택)
 #    $env:WD_KIT_ZIP      = 'C:\path\kit.zip'   깃허브 대신 로컬 ZIP 사용
@@ -130,7 +130,7 @@ Info "내 자료: $Root\MyData 에 제안서 3·블로그 3·로고 1 을 수업
 if ($env:WD_NO_ENVCHECK) {
     Info '환경점검은 건너뜁니다 (WD_NO_ENVCHECK).'
 } else {
-    Step '환경점검 시작 — Node·Git·Claude Code 가 없으면 명령어로 설치합니다 (Y 만 누르세요)'
+    Step '환경점검 시작 — Node·Git·Codex CLI 설치와 ChatGPT 로그인을 진행합니다 (Y 만 누르세요)'
     $null = Run-Script (Join-Path $Kit 'env_check.ps1') @()
 }
 

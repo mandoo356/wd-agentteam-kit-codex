@@ -17,9 +17,9 @@ irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/inst
 |---|---|---|
 | 1 | 깃허브에서 스타터킷을 받는다 (약 3MB, `node_modules`·비밀키 없음) | 수 초 |
 | 2 | `C:\Agent\01_KIT\starter-kit` 에 표준 설치한다. `C:\Agent\MyData\`도 같이 만든다 | 수 초 |
-| 3 | 환경점검을 이어서 돌린다 — Node·Git·Python·Claude Code 가 없으면 **명령어(winget/npm)로 설치** | 없는 것에 따라 몇 분 |
+| 3 | 환경점검을 이어서 돌린다 — Node·Git·Python·Codex CLI가 없으면 **명령어(winget/npm)로 설치**하고 ChatGPT 로그인을 연다 | 없는 것에 따라 몇 분 |
 
-기존 설치가 있으면 덮어쓰지 않습니다. 인터넷이 켜져 있어야 합니다.
+기존 설치가 있으면 사용자 작업·비밀키는 보존하고 실행 파일을 최신 Codex판으로 갱신합니다. 인터넷이 켜져 있어야 합니다.
 
 ## 설치 후
 
