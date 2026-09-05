@@ -4,7 +4,7 @@
 
 켜는 법:   py -3 server.py
 끄는 법:   검은 창에서 Ctrl + C
-필요한 것: 같은 폴더의 .env 파일에 슬랙 열쇠 2개
+필요한 것: 같은 폴더의 .env 파일에 슬랙 열쇠 2개와 내 멤버 ID
 
 ⚙️ 이 파일은 엔진입니다. 수업 중에 고칠 일은 없습니다.
    이름·아이콘을 바꾸려면 personas.py, 채널을 늘리려면 agent_channels.py 를 고치세요.
@@ -18,6 +18,19 @@ import re
 import sys
 from datetime import date
 from pathlib import Path
+
+# 한국어 Windows의 기본 CP949 콘솔에서도 한글·기호를 안전하게 출력한다.
+if sys.platform == "win32":
+    try:
+        import ctypes
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except Exception:
+        pass
+for stream in (sys.stdout, sys.stderr):
+    try:
+        stream.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 from dotenv import load_dotenv
 from slack_bolt.async_app import AsyncApp
@@ -42,9 +55,7 @@ load_dotenv(HERE / ".env", encoding="utf-8-sig")
 YOLO_ENABLED = os.environ.get("CODEX_YOLO", "1").strip().lower() not in {
     "0", "false", "no", "off"
 }
-REQUIRED_ENV = ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"]
-if YOLO_ENABLED:
-    REQUIRED_ENV.append("OWNER_USER_ID")
+REQUIRED_ENV = ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "OWNER_USER_ID"]
 MISSING = [k for k in REQUIRED_ENV
            if not os.environ.get(k, "").strip()]
 if MISSING:
@@ -52,7 +63,9 @@ if MISSING:
     print("  ❌ .env 에 이게 비어 있습니다: " + ", ".join(MISSING))
     print()
     print("  1) slack-server 폴더의 .env.example 을 복사해서 .env 로 이름을 바꾸고")
-    print("  2) 슬랙 열쇠 2개와 내 멤버 ID를 붙여넣으세요.")
+    print("  2) 열쇠 2개(xoxb-, xapp-)와 내 멤버 ID(U…)를 붙여넣으세요.")
+    if "OWNER_USER_ID" in MISSING:
+        print("     멤버 ID는 슬랙 앱 → 내 프로필 사진 → 프로필 → ⋯ 더보기 → 멤버 ID 복사")
     print()
     sys.exit(1)
 
@@ -96,16 +109,9 @@ log.info("직원 파일: %d개", AGENT_COUNT)
 if AGENT_COUNT == 0:
     log.warning("⚠️  .codex/agents/ 에 직원이 한 명도 없습니다 — 모듈 1을 먼저 하세요")
 
-# 🔒 YOLO에서는 확인창 없이 전체 권한으로 실행되므로 OWNER_USER_ID를 필수로 검사한다.
-# 제한 모드(CODEX_YOLO=0)에서는 비워도 되지만, 채널에 초대했다면 채우는 편이 안전하다.
-if OWNER_USER_ID:
-    log.info("본인 확인: OWNER_USER_ID 설정됨 — 그 외 사용자는 응답만 받고 실행은 거절됩니다")
-else:
-    log.warning("⚠️  OWNER_USER_ID가 비어 있습니다 — 지금은 이 봇에게 말 거는 사람 누구나 "
-                "파일을 읽고 쓸 수 있는 권한으로 직원을 실행시킬 수 있습니다. "
-                "혼자만 쓰는 DM이면 괜찮지만, 채널에 초대했거나 워크스페이스에 다른 사람이 "
-                "있다면 .env에 OWNER_USER_ID를 채우세요(슬랙에서 내 프로필 → "
-                "'더보기'  → '멤버 ID 복사').")
+# 🔒 OWNER_USER_ID는 위에서 비어 있으면 이미 종료됐다. 실행 모드와 관계없이
+# 등록된 본인만 Codex 작업을 요청할 수 있도록 설정됐음을 로그에 남긴다.
+log.info("본인 확인: OWNER_USER_ID 설정됨 — 그 외 사용자는 응답만 받고 실행은 거절됩니다")
 
 app = AsyncApp(token=SLACK_BOT_TOKEN)
 
@@ -243,11 +249,9 @@ async def on_message(event, client, say):
     channel_type = event.get("channel_type", "")
     channel_name = "" if channel_type == "im" else await get_channel_name(client, channel_id)
 
-    # 🔒 OWNER_USER_ID가 설정돼 있으면 그 사람 말고는 직원을 실행시킬 수 없다.
-    # 파일을 읽고 쓰는 권한(Codex YOLO)으로 도는 작업이라, 아무나 말을 걸어서
-    # 실행되게 두면 안 된다. 설정을 안 했으면(빈 값) 예전처럼 누구든 받는다 — 그 위험은
-    # 서버 켤 때 로그로 이미 경고했다.
-    if OWNER_USER_ID and user_id != OWNER_USER_ID:
+    # 🔒 등록된 본인 말고는 직원을 실행시킬 수 없다. OWNER_USER_ID가 비어 있으면
+    # 서버가 시작 단계에서 종료되므로 여기서는 항상 사용자 ID를 비교한다.
+    if user_id != OWNER_USER_ID:
         log.warning("본인 아님 — 요청 거절: user=%s channel=%s", user_id, channel_name or "DM")
         await client.chat_postMessage(
             channel=channel_id,
