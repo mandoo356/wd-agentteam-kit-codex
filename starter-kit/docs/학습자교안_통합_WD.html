@@ -297,7 +297,7 @@ footer b{color:#fff}
   <div class="grid g4 rise">
     <div class="tile mark"><div class="t">PART 1<br>환경설정</div><div class="d">프로그램 다섯 개를 깔고 <b>내 자료</b>를 넣습니다. <b>전날까지</b> 끝내오세요.</div></div>
     <div class="tile mark"><div class="t">PART 2<br>진행 매뉴얼</div><div class="d">모듈 0~6과 <b>프롬프트 카드 전문</b>. 복사해서 붙여넣는 방식입니다.</div></div>
-    <div class="tile mark"><div class="t">PART 3<br>슬랙 안내</div><div class="d">열쇠 두 개를 받아 넣고, 폰에서 직원을 부릅니다.</div></div>
+    <div class="tile mark"><div class="t">PART 3<br>슬랙 안내</div><div class="d">열쇠 두 개와 내 멤버 ID를 받아 넣고, 폰에서 직원을 부릅니다.</div></div>
     <div class="tile mark"><div class="t">PART 4<br>오류 사례집</div><div class="d">리허설에서 <b>실제로 난 오류</b>와 처방을 모았습니다.</div></div>
   </div>
 
@@ -386,20 +386,14 @@ winget install --exact --id Microsoft.VisualStudioCode</pre></div>
   <div class="scroller rise"><table><tbody>
     <tr><td style="width:130px"><b>가입</b></td><td><a href="https://chatgpt.com/" target="_blank" rel="noopener">chatgpt.com</a> · 공식 안내 <a href="https://learn.chatgpt.com/docs/codex" target="_blank" rel="noopener">Codex 문서</a></td></tr>
     <tr><td><b>요금제</b></td><td><b>ChatGPT 계정으로 로그인합니다.</b> 무료 계정도 Codex를 사용할 수 있지만 계정별 사용량 제한이 있습니다. 종일 실습은 강의 전에 각 계정에서 실제 로그인을 확인하고, 한도에 닿으면 해당 화면의 안내에 따릅니다.</td></tr>
-    <tr><td><b>비용 부담</b></td><td>[ 수강생 개인 부담 / 주최측 부담 ]</td></tr>
   </tbody></table></div>
-
-  <div class="note warn rise">
-    <span class="lb">모집 전에 정해야 합니다</span>
-    <p>비용 부담 주체가 정해지지 않은 채로 모집하면 <b>당일에 환불 사유</b>가 됩니다. 안내문을 보내기 전에 확정하세요.</p>
-  </div>
 
   <h3 class="rise">2. 설치</h3>
   <p class="rise">검은 창 종류에 맞는 한 줄을 붙여넣으면 끝입니다. <b>줄 맨 앞이 <code>PS C:\</code> 면 파워셸</b>, 경로만 있으면 CMD 입니다(5쪽).</p>
-  <div class="scroller rise"><table><tbody>
-    <tr><td style="width:130px"><b>PowerShell</b></td><td><code>npm.cmd install -g @openai/codex</code></td></tr>
-    <tr><td><b>CMD</b></td><td><code>npm.cmd install -g @openai/codex</code></td></tr>
-  </tbody></table></div>
+  <p class="rise"><b>PowerShell</b> (줄 맨 앞이 <code>PS C:\</code>)</p>
+  <div class="pre-wrap rise"><pre>npm.cmd install -g @openai/codex</pre></div>
+  <p class="rise"><b>CMD</b> (줄 맨 앞이 경로만)</p>
+  <div class="pre-wrap rise"><pre>npm.cmd install -g @openai/codex</pre></div>
   <p class="fine rise">※ 이 과정은 오피스 실행에도 필요한 <b>Node.js 22 이상</b>을 먼저 설치한 뒤, OpenAI 공식 npm 패키지로 Codex CLI를 설치합니다.<br>
   ※ 막히면 공식 안내 <a href="https://learn.chatgpt.com/docs/codex" target="_blank" rel="noopener">Codex 문서</a>를 보세요.</p>
 
@@ -911,19 +905,31 @@ codex.cmd --version</pre></div>
     </tbody>
   </table></div>
 
-  <h3 class="rise">모듈이 끝날 때마다 점검</h3>
-  <div class="pre-wrap rise"><pre><span class="c"># 스타터킷 폴더에서 (숫자는 방금 끝낸 모듈 번호)</span>
-py 점검.py 1</pre></div>
-  <p class="rise">✅ 가 다 뜨면 다음으로 갑니다. ❌ 가 뜨면 <b>거기 적힌 문장 그대로</b> 고치면 됩니다. 점검 프로그램은 <b>고치지 마세요</b> — 채점표입니다.</p>
+  <h3 class="rise">모듈이 끝날 때마다 점검 — 순서대로 치면 됩니다</h3>
+  <p class="lede rise">모듈 하나가 끝나면 <b>검은 창</b>(Codex <b>밖</b>)에서 아래 순서대로 칩니다. Codex 안에 있다면 <code>/exit</code>로 먼저 나오세요.</p>
 
-  <div class="note pass rise">
-    <span class="lb">이 프로그램은 열쇠 값을 화면에 찍지 않습니다</span>
-    <p>슬랙 열쇠가 제대로 들어갔는지 <b>모양만</b> 봅니다. 그래서 <b>화면 공유 중에 돌려도 안전합니다.</b></p>
+  <p class="rise"><b>① 스타터킷 폴더로 이동</b> — 검은 창을 새로 열었을 때만</p>
+  <div class="pre-wrap rise"><pre>cd "C:\Agent\01_KIT\starter-kit"</pre></div>
+
+  <p class="rise"><b>② 점검 실행</b> — 맨 뒤 숫자만 <b>방금 끝낸 모듈 번호</b>로 바꿉니다<br>
+  <span class="fine">1 직원 뽑기 · 2 스킬 · 3 팀으로 묶기 · 4 슬랙 · 5 사무실 · 6 시연</span></p>
+  <div class="pre-wrap rise"><pre>py 점검.py 1</pre></div>
+
+  <p class="rise"><b>③ 결과 읽기</b></p>
+  <div class="grid g2 rise">
+    <div class="tile"><div class="t">✅ 만 떴다</div><div class="d">통과. 다음 모듈로 갑니다</div></div>
+    <div class="tile"><div class="t">❌ 가 있다</div><div class="d">그 옆에 적힌 문장 <b>그대로</b> 고치고 ②를 다시 실행합니다. 점검 프로그램 자체는 <b>고치지 마세요</b> — 채점표입니다</div></div>
   </div>
 
+  <p class="rise"><b>④ 출발선 저장</b> — 오늘 <b>딱 한 번</b>, 첫 점검(<code>py 점검.py 0</code>)이 ✅ 나온 직후. 세 줄을 한꺼번에 복사해 붙여넣으면 됩니다. 이때부터 직원이 한 일이 자동으로 저장됩니다.</p>
   <div class="pre-wrap rise"><pre>git init
 git add -A
 git commit -m "출발선"</pre></div>
+
+  <div class="note pass rise">
+    <span class="lb">점검 프로그램은 열쇠 값을 화면에 찍지 않습니다</span>
+    <p>슬랙 열쇠가 제대로 들어갔는지 <b>모양만</b> 봅니다. 그래서 <b>화면 공유 중에 돌려도 안전합니다.</b></p>
+  </div>
   <p class="fine rise">※ 단, <b>모듈 4(슬랙)에서는 되돌려도 소용없습니다.</b> 슬랙 설정은 내 PC 밖에 있어서 git이 관리하지 않습니다. 그때는 PART 3의 관문을 보세요.</p>
 
   <h3 class="rise">자동 기록·저장과 위험 작업 확인 — Codex</h3>
@@ -933,8 +939,12 @@ git commit -m "출발선"</pre></div>
     <div class="tile mark"><div class="t">② 차단 후 사람이 확인</div><div class="d">삭제·이동·되돌리기·셸 덮어쓰기·기존 직원/스킬/규약 변경은 먼저 차단합니다. 대상과 백업을 확인한 뒤 사람이 별도 터미널에서 직접 실행합니다. 일반 문서 수정과 새 직원 파일 생성은 가능합니다.</div></div>
   </div>
   <div class="note warn rise"><span class="lb">슬랙도 같은 차단 규칙 · 훅 신뢰 필수</span><p>슬랙에서는 위험 작업을 실행하지 않고 노트북 터미널로 안내합니다. Codex 훅은 확인창(ask)을 지원하지 않습니다. 훅은 보조 안전장치이며 모든 프로그램을 통제하는 보안 경계는 아닙니다. YOLO에서 훅을 끄거나 신뢰하지 않으면 기록·차단이 작동하지 않습니다.</p></div>
-  <div class="pre-wrap rise"><pre>git log --oneline -10</pre></div>
-  <p class="fine rise">자동 저장 범위·복원 절차: README의 자동 기록·저장 절. 전체 회사는 <code>02_내작업_백업.bat</code>으로 보관합니다.</p>
+  <p class="rise"><b>아까 상태로 파일 하나를 되돌리고 싶을 때</b> — 먼저 <code>02_내작업_백업.bat</code>으로 전체 회사를 백업합니다. 그다음 Codex 밖의 별도 터미널에서 첫 줄로 저장 지점을 보고, 둘째 줄의 <code>번호</code>에 목록 맨 앞 7글자를 넣어 직접 실행합니다.</p>
+  <div class="pre-wrap rise"><pre><span class="c"># 저장 지점 목록 보기</span>
+git log --oneline -10
+<span class="c"># 파일 하나만 그 지점으로 되돌리기 — 실행 전 백업 필수</span>
+git checkout 번호 -- 파일경로</pre></div>
+  <p class="fine rise">자동 저장 범위·복원 절차: README의 자동 기록·저장 절. Codex 훅은 되돌리기 명령을 차단하므로 우회하지 말고, 백업과 대상을 확인한 뒤 사람이 별도 터미널에서 직접 실행합니다.</p>
 </section>
 
 <section class="page" data-title="모듈 1 — 직원 뽑기" data-short="② 모듈 1" data-part="2" data-n="11">
@@ -1086,6 +1096,11 @@ git commit -m "출발선"</pre></div>
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼 · 모듈 2</p>
   <h2 class="rise">P4 — 첫 스킬 만들기 <span class="fine">통째로 복사 → 붙여넣기 → 엔터</span></h2>
   <p class="lede rise">오늘 가장 긴 카드입니다. <b>읽지 마시고 복사하세요.</b> 오른쪽 위 <b>복사</b> 단추를 누르면 전체가 한 번에 복사됩니다.</p>
+
+  <div class="note tip rise">
+    <span class="lb">이 스킬은 연습용 표준입니다 — 내 것으로 바꾸는 건 모듈 3.5에서</span>
+    <p>지금 만드는 제안서 스킬은 <b>누가 만들어도 같은 표준형</b>입니다. 회사 이름·색만 <code>facts.md</code>에서 가져올 뿐, 내 자료는 아직 읽지 않습니다. 먼저 이 스킬로 직원이 제안서를 만드는 것을 확인하고, <b>모듈 3.5(18쪽) P18</b>에서 <b>MyData에 넣은 내 제안서·프로필</b>을 읽혀 <b>이 스킬을 내 것으로 덮어씁니다.</b> 지금은 카드를 고치지 말고 그대로 쓰세요.</p>
+  </div>
 
   <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P4">지금 열려 있는 스타터킷 안의 .agents/skills/제안서/ 에 SKILL.md 를 만들어줘.
 (홈 폴더가 아니라 스타터킷 안의 .agents/skills 이다.)
@@ -1797,8 +1812,8 @@ npm run dev</pre></div>
   <p class="lede rise">여기가 <b>오늘 가장 많이 막히는 구간</b>입니다. 먼저 뭘 하는 건지 그림으로 잡고 갑시다.</p>
 
   <div class="grid g3 rise">
-    <div class="tile mark"><div class="t">① 받는다</div><div class="d">슬랙에서 <code>xapp-</code>·<code>xoxb-</code> 열쇠와 <code>U</code>로 시작하는 내 멤버 ID를 복사합니다.</div></div>
-    <div class="tile mark"><div class="t">② 넣는다</div><div class="d"><code>.env</code> 파일을 만들어 세 값을 붙여넣습니다.</div></div>
+    <div class="tile mark"><div class="t">① 받는다</div><div class="d">슬랙 사이트에서 <b>열쇠 두 개</b>(<code>xapp-</code>, <code>xoxb-</code>)를, 슬랙 앱에서 <b>내 멤버 ID</b>(<code>U</code>로 시작)를 복사합니다. <b>세 값</b>입니다.</div></div>
+    <div class="tile mark"><div class="t">② 넣는다</div><div class="d"><code>.env</code> 파일을 만들어 그 <b>세 값</b>을 붙여넣습니다. <b>멤버 ID 줄(<code>OWNER_USER_ID</code>)도 채워야</b> 진행됩니다.</div></div>
     <div class="tile mark"><div class="t">③ 켠다</div><div class="d">검은 창에 <code>Bolt app is running!</code> 이 뜨면 연결 완료입니다.</div></div>
   </div>
 
@@ -1867,7 +1882,7 @@ features:
     messages_tab_enabled: true
     messages_tab_read_only_enabled: false</b>
   bot_user:
-    display_name: AI 직원
+    display_name: AI
     always_online: true
 oauth_config:
   scopes:
@@ -1898,15 +1913,16 @@ settings:
     <p>이 앱이 <b>뭘 할 수 있는지 적어둔 신청서</b>입니다. 메시지를 읽고, 답을 쓰고, 직원 이름과 아이콘을 바꿔가며 말할 수 있게 해달라는 내용이에요.</p>
     <p style="margin-top:8px">노란 글씨의 <code>messages_tab_enabled: true</code> 는 <b>1:1 대화창에 글을 쓸 수 있게</b> 해줍니다. 이게 없으면 대화창은 열리는데 <b>입력칸이 잠깁니다.</b> (PART 4의 사례 ①)</p>
     <p style="margin-top:8px">맨 아래 <code>socket_mode_enabled: true</code> 덕분에 <b>서버 주소 없이</b> 내 노트북에서 바로 연결됩니다.</p>
+    <p style="margin-top:8px"><code>display_name: AI</code>는 <b>영문 그대로</b> 두세요. 슬랙이 이 칸에는 한글을 받지 않아 <code>AI 직원</code>처럼 적으면 Create 단계에서 오류가 납니다.</p>
   </div>
 
   <div class="shot rise">📷 [ 캡처 자리 — From a manifest 선택 화면 / YAML 붙여넣은 화면 ]</div>
 </section>
 
-<section class="page" data-title="열쇠 두 개 받기" data-short="③ 열쇠 받기" data-part="3" data-n="23">
+<section class="page" data-title="열쇠 두 개와 멤버 ID 받기" data-short="③ 열쇠 받기" data-part="3" data-n="23">
   <p class="eyebrow rise">PART 3 · 슬랙 안내</p>
-  <h2 class="rise">2단계 — 열쇠 두 개 받기</h2>
-  <p class="lede rise">열쇠는 <b>두 개</b>이고, <b>서로 다른 페이지</b>에 있습니다. 한 화면에서 둘 다 받을 수 없어요. 하나만 받고 끝난 줄 아는 경우가 가장 많습니다.</p>
+  <h2 class="rise">2단계 — 열쇠 두 개와 내 멤버 ID 받기</h2>
+  <p class="lede rise">받을 것은 <b>세 값</b>입니다. 열쇠 두 개는 <b>서로 다른 페이지</b>에 있어서 한 화면에서 둘 다 받을 수 없고, 멤버 ID는 <b>슬랙 앱</b>에서 받습니다. 하나만 받고 끝난 줄 아는 경우가 가장 많습니다.</p>
 
   <h3 class="rise">첫 번째 열쇠 <code>xapp-</code> — 왼쪽 메뉴 <b>Basic Information</b></h3>
   <p class="rise">이 페이지는 세로로 아주 깁니다. <b><code>App Credentials</code> 라는 칸 바로 다음</b>에 <code>App-Level Tokens</code> 가 있습니다. 못 찾으시면 <code>Ctrl</code>+<code>F</code> → <b>App-Level</b>.</p>
@@ -1940,10 +1956,24 @@ settings:
     <p><b>회사 슬랙</b>에 앱을 만드신 겁니다. 관리자 승인이 필요해서 오늘 안에 못 받습니다. <b>개인 워크스페이스를 새로 만들어</b> 앱 만들기부터 다시 하셔야 합니다. 흔한 일이고, 다시 하면 5분입니다.</p>
   </div>
 
+  <h3 class="rise">세 번째 — 내 멤버 ID <code>U…</code> — <b>슬랙 앱</b>(대화 화면)에서</h3>
+  <p class="rise">이 값은 <code>api.slack.com</code>이 아니라 <b>평소 대화하는 슬랙 화면</b>에서 받습니다. 브라우저든 설치한 앱이든 같습니다.</p>
+  <ol class="flow rise">
+    <li>내 워크스페이스를 연 뒤 <b>왼쪽 아래(또는 오른쪽 위) 내 프로필 사진</b> 클릭</li>
+    <li><b>프로필</b>(Profile) 클릭 → 오른쪽에 내 프로필 패널이 열립니다</li>
+    <li>패널 안 이름 옆 <b>⋯ (더보기)</b> 클릭 → <b>멤버 ID 복사</b>(Copy member ID)</li>
+    <li>메모장에 붙여넣기 — <b><code>U</code>로 시작하는 9~11자</b>(예: <code>U0123ABCD</code>)면 맞습니다</li>
+  </ol>
+  <div class="note tip rise">
+    <span class="lb">"멤버 ID 복사"가 안 보이면</span>
+    <p>패널의 <b>⋯</b>를 누른 게 맞는지 보세요. 프로필 사진을 누른 첫 메뉴에는 없고, <b>프로필 → ⋯</b> 두 번 들어가야 나옵니다. 영어 화면이면 <b>Copy member ID</b>입니다.</p>
+    <p style="margin-top:8px">이 값이 있어야 직원이 <b>나한테만</b> 답합니다. 이 값이 비어 있으면 <b>다음 단계가 진행되지 않습니다.</b></p>
+  </div>
+
   <div class="note pass rise">
-    <span class="lb">✅ 여기까지 됐으면 메모장에 두 줄</span>
-    <p><code>봇토큰 = xoxb-...</code> / <code>앱토큰 = xapp-1-...</code></p>
-    <p style="margin-top:8px">🔒 <b>이 두 줄은 비밀번호입니다.</b> 카톡·메일로 보내지 마세요. <b>진행자에게도 보낼 필요 없습니다.</b> 화면 공유 중엔 메모장을 닫아두세요.</p>
+    <span class="lb">✅ 여기까지 됐으면 메모장에 세 줄</span>
+    <p><code>봇토큰 = xoxb-...</code> / <code>앱토큰 = xapp-1-...</code> / <code>멤버ID = U...</code></p>
+    <p style="margin-top:8px">🔒 <b>이 세 줄은 비밀번호처럼 보호합니다.</b> 카톡·메일로 보내지 마세요. <b>진행자에게도 보낼 필요 없습니다.</b> 화면 공유 중엔 메모장을 닫아두세요.</p>
   </div>
 </section>
 
@@ -1966,9 +1996,13 @@ settings:
   <h3 class="rise">3-2. 열쇠 두 개와 내 멤버 ID 붙여넣기</h3>
   <div class="pre-wrap rise"><pre>SLACK_BOT_TOKEN=xoxb-1234567890-...
 SLACK_APP_TOKEN=xapp-1-A0...
-OWNER_USER_ID=U0123456789
+OWNER_USER_ID=U0123ABCD
 CODEX_YOLO=1</pre></div>
-  <p class="rise"><code>OWNER_USER_ID</code>는 <b>YOLO 모드에서 필수</b>입니다. 슬랙의 내 프로필 → 더보기 → <b>멤버 ID 복사</b>에서 <code>U</code>로 시작하는 값을 넣으세요. 다른 사람의 요청으로 내 PC가 움직이는 것을 막습니다.</p>
+  <p class="rise"><b>네 줄 모두</b> 확인합니다. <code>OWNER_USER_ID</code>는 2단계 세 번째에서 복사한 <b><code>U</code>로 시작하는 내 멤버 ID</b>입니다. YOLO 모드에서는 필수이며, <b>비워두면 진행되지 않습니다.</b></p>
+  <div class="note tip rise">
+    <span class="lb">멤버 ID를 아직 안 받았다면</span>
+    <p>슬랙 앱(대화 화면) → <b>내 프로필 사진</b> → <b>프로필</b> → 이름 옆 <b>⋯ 더보기</b> → <b>멤버 ID 복사</b>. <code>U</code>로 시작하면 맞습니다. 자세한 순서는 23쪽을 보세요.</p>
+  </div>
 
   <div class="scroller rise"><table>
     <thead><tr><th style="width:50%">이러면 안 됩니다</th><th>왜</th></tr></thead>
@@ -1977,6 +2011,7 @@ CODEX_YOLO=1</pre></div>
       <tr><td><code>SLACK_BOT_TOKEN = xoxb-...</code></td><td><b><code>=</code> 앞뒤 공백 금지</b></td></tr>
       <tr><td><code>SLACK_BOT_TOKEN=xoxb-... </code></td><td><b>줄 끝 공백 금지.</b> 붙여넣을 때 눈에 안 보이게 딸려옵니다</td></tr>
       <tr><td><code>SLACK_BOT_TOKEN=xapp-...</code></td><td><b>자리 바뀜.</b> <code>BOT</code>↔<code>xoxb</code>, <code>APP</code>↔<code>xapp</code></td></tr>
+      <tr><td><code>OWNER_USER_ID=</code> 뒤가 <b>비어 있다</b></td><td>멤버 ID를 안 넣은 것입니다. 직원이 진행하지 않습니다 — 23쪽 세 번째 항목대로 받아 채우세요</td></tr>
     </tbody>
   </table></div>
   <p class="fine rise">💡 헷갈리면 <b><code>APP</code> ↔ <code>xapp</code></b> 처럼 글자가 같은 쪽끼리 짝지으세요. 남는 하나가 봇입니다.</p>
@@ -2014,7 +2049,7 @@ CODEX_YOLO=1</pre></div>
 
 그리고 내가 아래 값을 직접 채워 넣을 수 있게 파일을 열어줘.
 - 값은 네가 지어내지 말 것. 빈칸으로 둘 것.
-- OWNER_USER_ID는 슬랙의 내 프로필 → 더보기 → 멤버 ID 복사에서 가져온다고 알려줄 것.
+- OWNER_USER_ID는 반드시 채우고, 슬랙 앱의 내 프로필 사진 → 프로필 → 이름 옆 더보기 → 멤버 ID 복사에서 가져온다고 알려줄 것.
 - CODEX_YOLO=1은 그대로 둘 것.
 - .env 파일 내용을 화면에 출력하지 말 것.
 - 저장은 UTF-8 로, 맨 앞에 BOM 표식이 붙지 않게 해줘.
@@ -2253,7 +2288,7 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
       <tr><td class="num">5</td><td>앱 토큰</td><td>Basic Information 아래쪽</td><td><code>connections:write</code> 딱지</td></tr>
       <tr><td class="num">6</td><td>봇 토큰</td><td>OAuth &amp; Permissions → Install</td><td><code>xoxb-</code> 로 시작하나</td></tr>
       <tr><td class="num">7</td><td><b>직원 8명 만들기</b></td><td>모듈 1 · 카드 P1~P3</td><td><code>py 점검.py 1</code> ✅ 4개</td></tr>
-      <tr><td class="num">8</td><td><code>.env</code> 만들고 채우기</td><td><code>slack-server\</code></td><td><code>OWNER_USER_ID</code> 포함 · <code>.env.txt</code> 아닌가</td></tr>
+      <tr><td class="num">8</td><td><code>.env</code> 만들고 채우기</td><td><code>slack-server\</code></td><td><code>.env.txt</code> 아닌가 · <code>OWNER_USER_ID</code>에 <code>U…</code> 멤버 ID를 넣었나</td></tr>
       <tr><td class="num">9</td><td>저장</td><td>VS Code <code>Ctrl</code>+<code>S</code></td><td>메모장으로 저장 안 했나</td></tr>
       <tr><td class="num">10</td><td>자가진단</td><td><code>py 점검.py 4</code></td><td>열쇠 모양 ✅ · BOM ✅</td></tr>
       <tr><td class="num">11</td><td>서버 켜기</td><td><code>py -3 server.py</code></td><td><b><code>직원 파일: 8개</code></b> · <code>Bolt app is running!</code></td></tr>
@@ -2282,7 +2317,7 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
 <footer><div class="in">
   <b>위드드림컨설팅</b> · 에이전트 팀 만들기 상세 설명서 (환경설정 · 진행 매뉴얼 · 슬랙 안내 · 오류 사례집)<br>
   서체 Noto Sans KR · 외부 참조 0건(오프라인에서 그대로 열립니다) · Codex판 2026-09-05<br>
-  변경 이력 · 2026-09-05: 실행 안내 제목을 Codex CLI 기준으로 정리했습니다. 기존 실습 절차와 29쪽 구성은 유지합니다.
+  변경 이력 · 2026-09-05: 슬랙 manifest 표시 이름을 AI로 고치고 OWNER_USER_ID 필수 입력·멤버 ID 찾기·모듈별 점검 순서를 보강했습니다. Codex 기준 29쪽 구성은 유지합니다.
 </div></footer>
 
 <script>
@@ -2398,6 +2433,16 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
     btn.type='button'; btn.className='pre-copy'; btn.textContent='복사';
     btn.addEventListener('click', function(){
       var t=pre.innerText;
+      // 설명용 주석(.c)은 빼고 실행할 명령만 복사한다. 상자가 전부 주석이면 원문을 유지한다.
+      if(pre.querySelector('.c')){
+        var cl=pre.cloneNode(true);
+        [].forEach.call(cl.querySelectorAll('.c'), function(c){ c.parentNode.removeChild(c); });
+        var stripped=cl.textContent.split('\n')
+          .map(function(l){ return l.replace(/\s+$/,''); })
+          .filter(function(l){ return l.trim()!==''; })
+          .join('\n');
+        if(stripped) t=stripped;
+      }
       function done(){ btn.textContent='복사됨'; btn.classList.add('done');
         setTimeout(function(){ btn.textContent='복사'; btn.classList.remove('done'); },1400); }
       if(navigator.clipboard&&navigator.clipboard.writeText){
