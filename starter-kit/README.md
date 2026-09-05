@@ -4,7 +4,22 @@
 
 ---
 
-## 가장 쉬운 길 — 받은 ZIP 설치
+## 기본 설치 — PowerShell 또는 CMD 한 줄
+
+PowerShell:
+```powershell
+irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/install.ps1 | iex
+```
+CMD(명령 프롬프트):
+```bat
+powershell -NoProfile -ExecutionPolicy Bypass -Command "irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/install.ps1 | iex"
+```
+Node.js 설치 후 Codex만 설치할 때는 두 창 모두 `npm.cmd install -g @openai/codex`를 사용합니다. 로그인은 `codex.cmd login`입니다.
+PowerShell 자체가 기관 정책으로 차단되면 CMD 한 줄도 작동하지 않습니다. 별책의 수동 설치 절차를 참고하고, 훅을 포함한 전 과정 실습은 PowerShell을 사용할 수 있는 Windows 노트북에서 진행합니다.
+
+별책: `05_검은창_매뉴얼_CMD와PowerShell_WD.html` (배포본에서는 `docs/`)
+
+## 예비 — 받은 ZIP 설치
 
 1. 강사가 준 이름에 **Codex**가 들어간 ZIP을 선택해 **모두 압축 풀기**를 누릅니다.
 2. 풀린 폴더의 **`00_폴더생성_및_설치.bat`**을 더블클릭합니다.
@@ -145,6 +160,22 @@ py 점검.py 2     ← 모듈 2가 끝났으면
 채점에는 안 들어가니 열어보고 참고만 하세요. 여러분이 만드는 진짜 파일은 `.txt` 없이 만듭니다.
 
 ---
+
+## 자동 기록·저장·위험 작업 확인 — Codex판
+
+1. 설치 후 `01_Codex_YOLO_시작.bat`에서 프로젝트를 신뢰하고 `/hooks`를 엽니다. 새로 추가·변경된 5개 이벤트를 검토하고 신뢰합니다. 업데이트 뒤에도 다시 확인합니다.
+2. `workspace/기록/작업기록_날짜.md`에 **Codex 훅 실행 확인**이 남는지 확인합니다. 파일 존재 점검만으로 작동을 보증하지 않습니다.
+3. 요청 접수·도구 종료·변경 파일·차단 이유가 한글로 기록됩니다. 요청 원문과 명령 인수는 비밀키 노출을 줄이기 위해 기록하지 않습니다.
+4. `git init` 후 답변 종료 시 결과물·직원·스킬·팀 규약 변경을 자동 커밋합니다. 변경이 없거나 사용자가 이미 스테이징한 파일이 있으면 생략합니다. 기록 파일만으로 커밋을 만들지 않습니다. 전체 회사 보관은 `02_내작업_백업.bat`을 사용합니다.
+5. 삭제·이동·되돌리기·셸 덮어쓰기·보호 파일 편집은 훅이 **차단**합니다. Codex의 PreToolUse 훅은 `ask` 확인창을 지원하지 않습니다. 대상을 확인하고 백업한 뒤 사람이 별도 터미널에서 직접 명령을 실행합니다. 슬랙에서는 터미널로 안내합니다.
+6. 일반 문서는 `apply_patch`로 수정하고, 최초 직원·스킬·규약 파일 생성은 허용합니다. 보호 대상은 `.codex/`, `.agents/`, `AGENTS.md`, `workspace/memory/`, 회사 설정·열쇠입니다.
+7. 훅은 보조 안전장치입니다. 임의 프로그램·모든 외부 도구를 완벽히 통제하지 않으며, YOLO는 운영체제 샌드박스를 해제합니다. 훅을 신뢰하지 않았거나 꺼 두면 보호·기록이 작동하지 않습니다.
+
+설치 위치를 옮겼으면 `powershell -NoProfile -ExecutionPolicy Bypass -File configure_hooks.ps1`을 실행한 뒤 `/hooks`에서 다시 신뢰하세요. 자동화는 이미 설치하는 **Node.js 22 이상**으로 실행하여 Python 실행기 버전 충돌을 줄였습니다.
+
+확인 명령: `git log --oneline -10`. 복원은 `git diff`로 변경을 살펴보고 백업한 뒤 `git restore --source=커밋번호 -- 파일경로`를 사람이 직접 실행합니다.
+
+공식 근거: https://learn.chatgpt.com/docs/hooks
 
 ## 막혔을 때
 

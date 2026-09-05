@@ -189,6 +189,10 @@ if ($sameLocation) {
     Write-Info ("{0}개 파일 / {1:N1}MB" -f $installedFiles.Count, ($installedBytes / 1MB))
 }
 
+# 실제 설치 위치 기준으로 훅 명령을 다시 구성한다.
+& powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $targetKit 'configure_hooks.ps1')
+if ($LASTEXITCODE -ne 0) { throw 'Codex 훅 구성 실패' }
+
 $readmeSource = Join-Path $targetKit 'README.md'
 $readmeTarget = Join-Path $targetRoot '00_README\스타터킷_README.md'
 if ((Test-Path -LiteralPath $readmeSource) -and -not (Test-Path -LiteralPath $readmeTarget)) {

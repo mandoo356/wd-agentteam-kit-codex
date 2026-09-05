@@ -34,6 +34,8 @@ class BridgeTest(unittest.IsolatedAsyncioTestCase):
             captured = []
 
             async def fake_create(*command, **kwargs):
+                self.assertEqual(kwargs["env"]["WD_CHANNEL"], "slack")
+                self.assertIn("PATH", {k.upper(): v for k,v in kwargs["env"].items()})
                 captured.extend(command)
                 return FakeProcess()
 

@@ -1,0 +1,10 @@
+{
+  "description": "설치기가 절대경로로 갱신합니다. /hooks에서 검토·신뢰 후 사용하세요.",
+  "hooks": {
+    "SessionStart": [{"hooks": [{"type": "command", "command": "node .codex/hooks/runtime.mjs", "timeout": 120}]}],
+    "UserPromptSubmit": [{"hooks": [{"type": "command", "command": "node .codex/hooks/runtime.mjs", "timeout": 120}]}],
+    "PreToolUse": [{"hooks": [{"type": "command", "command": "node .codex/hooks/runtime.mjs", "timeout": 120}]}],
+    "PostToolUse": [{"hooks": [{"type": "command", "command": "node .codex/hooks/runtime.mjs", "timeout": 120}]}],
+    "Stop": [{"hooks": [{"type": "command", "command": "node .codex/hooks/runtime.mjs", "timeout": 120}]}]
+  }
+}

@@ -132,6 +132,7 @@ class AgentPool:
     async def _run(self, prompt: str, timeout_sec: int, resume: bool) -> str:
         process = await asyncio.create_subprocess_exec(
             *self._command(resume), cwd=str(KIT_ROOT),
+            env={**os.environ, "WD_CHANNEL": "slack"},
             stdin=asyncio.subprocess.PIPE, stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),

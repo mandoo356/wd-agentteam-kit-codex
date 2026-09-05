@@ -183,6 +183,18 @@ def module_0():
     checks.append(("스타터킷 폴더 구조", not missing,
                    "정상" if not missing else "없는 폴더: " + ", ".join(missing)))
 
+    import json
+    hook_files = [".codex/hooks.json", ".codex/hooks/runtime.mjs", "configure_hooks.ps1"]
+    hook_ok = all((ROOT / f).is_file() for f in hook_files)
+    if hook_ok:
+        try:
+            cfg = json.loads((ROOT / ".codex/hooks.json").read_text(encoding="utf-8-sig"))
+            hook_ok = all(cfg.get("hooks", {}).get(e) for e in ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop"])
+        except Exception:
+            hook_ok = False
+    checks.append(("자동 기록·저장·차단 파일 (Codex)", hook_ok,
+                   "파일 정상 — /hooks 신뢰와 작업기록 실행 확인은 별도로 필요" if hook_ok else "스타터킷을 다시 설치하세요"))
+
     checks.append(("한글 경로에서 실행 중", True, str(ROOT)))
     return checks
 

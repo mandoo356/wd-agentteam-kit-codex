@@ -301,6 +301,12 @@ function Check-Folders {
     Set-Result 'folders' '스타터킷 폴더 구조' '필수' ($missing.Count -eq 0) $d
 }
 
+function Check-CodexHooks {
+    $files = @('.codex/hooks.json','.codex/hooks/runtime.mjs','configure_hooks.ps1')
+    $missing = @($files | Where-Object { -not (Test-Path -LiteralPath (Join-Path $KIT $_)) })
+    Set-Result 'codex-hooks' 'Codex 자동 기록·저장·차단 파일' '필수' ($missing.Count -eq 0) '파일 존재 검사입니다. /hooks에서 신뢰하고 작업기록의 실행 확인을 별도로 보세요.' '스타터킷 재설치 후 /hooks 검토·신뢰'
+}
+
 function Check-MyData {
     # 표준 설치(C:\Agent\01_KIT\starter-kit)면 두 단계 위가 회사 건물 — 그 안의 MyData\ 를 센다
     $root = Split-Path -Parent $COURSE
@@ -641,6 +647,7 @@ Fix-PyPackages
 Write-Step '5/6 스타터킷 · 슬랙'
 Check-Folders | Out-Null
 Check-MyData | Out-Null
+Check-CodexHooks | Out-Null
 Check-SlackEnv | Out-Null
 Fix-Slack
 
