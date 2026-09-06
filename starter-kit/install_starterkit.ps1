@@ -189,6 +189,16 @@ if ($sameLocation) {
     Write-Info ("{0}개 파일 / {1:N1}MB" -f $installedFiles.Count, ($installedBytes / 1MB))
 }
 
+# 배포에서 누락된 빈 폴더를 복구한다. 신규·갱신·동일 위치 실행 모두 적용한다.
+foreach ($relative in @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'workspace\결과물', 'slack-server\logs')) {
+    $folderPath = Join-Path $targetKit $relative
+    if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) {
+        if (Test-Path -LiteralPath $folderPath) { throw "폴더 복구 실패: $relative — 같은 이름의 파일이 있습니다." }
+        $null = New-Item -ItemType Directory -Path $folderPath -Force -ErrorAction Stop
+        if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) { throw "폴더 복구 실패: $relative — 쓰기 권한을 확인하세요." }
+    }
+}
+
 # 실제 설치 위치 기준으로 훅 명령을 다시 구성한다.
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $targetKit 'configure_hooks.ps1')
 if ($LASTEXITCODE -ne 0) { throw 'Codex 훅 구성 실패' }

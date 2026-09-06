@@ -295,9 +295,25 @@ print(" ".join(m + "=" + ("O" if u.find_spec(m) else "X") for m in mods))
 }
 
 function Check-Folders {
-    $need = @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'slack-server\server.py', '점검.py')
-    $missing = @($need | Where-Object { -not (Test-Path (Join-Path $KIT $_)) })
-    $d = "정상 — $KIT"; if ($missing.Count) { $d = '없음: ' + ($missing -join ', ') + ' — 스타터킷 압축을 다시 푸세요' }
+    # 배포 과정에서 빠진 빈 폴더만 복구한다. 직원 TOML·스킬·기억 파일의 내용은 만들지 않는다.
+    $folders = @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'workspace\결과물')
+    $repairErrors = @()
+    foreach ($relative in $folders) {
+        $folderPath = Join-Path $KIT $relative
+        if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) {
+            try {
+                if (Test-Path -LiteralPath $folderPath) { throw '같은 이름의 파일이 있습니다.' }
+                $null = New-Item -ItemType Directory -Path $folderPath -Force -ErrorAction Stop
+                if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) { throw '폴더 생성 결과를 확인할 수 없습니다.' }
+            }
+            catch { $repairErrors += $relative }
+        }
+    }
+    $missing = @($folders | Where-Object { -not (Test-Path -LiteralPath (Join-Path $KIT $_) -PathType Container) })
+    $missing += @(@('slack-server\server.py', '점검.py') | Where-Object { -not (Test-Path -LiteralPath (Join-Path $KIT $_) -PathType Leaf) })
+    $d = "정상 — $KIT"
+    if ($missing.Count) { $d = '없음 또는 형식 오류: ' + ($missing -join ', ') + ' — 파일 누락은 스타터킷 압축을 다시 풀어 복원하세요' }
+    if ($repairErrors.Count) { $d += ' / 폴더 복구 실패: ' + ($repairErrors -join ', ') + ' — 같은 이름의 파일 또는 쓰기 권한을 확인하세요' }
     Set-Result 'folders' '스타터킷 폴더 구조' '필수' ($missing.Count -eq 0) $d
 }
 
