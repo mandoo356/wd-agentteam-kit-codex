@@ -433,7 +433,13 @@ def module_4():
     log = srv / "logs" / "server.log"
     started = log.is_file() and "running" in log.read_text(encoding="utf-8", errors="ignore").lower()
     checks.append(("서버가 한 번 이상 정상 기동했다", started,
-                   "정상" if started else f"slack-server 폴더에서 {PYTHON314_COMMAND} server.py"))
+                   "정상" if started else "환경점검.bat을 다시 실행하세요"))
+
+    task_name = r"\WithDream Slack Codex Server"
+    autostart = run(["schtasks.exe", "/Query", "/TN", task_name]) is not None
+    checks.append(("슬랙 서버 숨김 자동 시작이 등록됐다", autostart,
+                   "정상 — Windows 로그인 때 검은 창 없이 시작" if autostart else
+                   r'PowerShell에서 powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Agent\01_KIT\starter-kit\slack-server\install_autostart.ps1"'))
     return checks
 
 
