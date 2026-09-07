@@ -899,7 +899,7 @@ codex.cmd --version</pre></div>
       <tr><td><b>P20</b></td><td>네이버 블로그 임시저장 실행</td><td>PART 2 · 모듈 3.5 네이버</td></tr>
       <tr><td><b>P8-a</b></td><td><b>관문①</b> 슬랙 붙이기 전 준비 확인</td><td>PART 3 · 전체 그림</td></tr>
       <tr><td><b>P9 · P9-a</b></td><td>열쇠 넣기 · <b>관문②</b> 자가진단</td><td>PART 3 · 넣고 켜기</td></tr>
-      <tr><td><b>P10</b></td><td><b>관문③</b> 서버 켜기</td><td>PART 3 · 넣고 켜기</td></tr>
+      <tr><td><b>P10</b></td><td><b>관문③</b> 서버 자동 시작</td><td>PART 3 · 넣고 연결</td></tr>
       <tr><td><b>P10-a · P11</b></td><td><b>관문④</b> 첫 대화 · 이름과 아이콘</td><td>PART 3 · 첫 대화</td></tr>
       <tr><td><b>P12~P14</b></td><td>사무실 실행 · 내 회사로 · 시연 대본</td><td>PART 2 · 모듈 5·6</td></tr>
     </tbody>
@@ -1782,7 +1782,7 @@ npm run dev</pre></div>
   <h3 class="rise">모듈 6 · 시연하고 가져가기</h3>
   <ol class="flow rise">
     <li><b>시연.</b> 옆 사람에게 내 직원 한 명을 소개하고, 일을 하나 시켜 보여줍니다.</li>
-    <li><b>집에서 다시 켜는 법.</b> 검은 창 두 개(슬랙 서버 · 오피스)를 켜는 순서를 확인합니다.</li>
+    <li><b>집에서 다시 켜는 법.</b> Windows 로그인 뒤 Slack 서버가 검은 창 없이 자동 연결되는지 확인합니다.</li>
     <li><b>가져가기.</b> <code>02_내작업_백업.bat</code>을 더블클릭합니다. 내 작업물만 ZIP으로 묶고 <code>.env</code>·로그인 상태·의존성은 자동으로 제외합니다.</li>
   </ol>
 
@@ -1814,7 +1814,7 @@ npm run dev</pre></div>
   <div class="grid g3 rise">
     <div class="tile mark"><div class="t">① 받는다</div><div class="d">슬랙 사이트에서 <b>열쇠 두 개</b>(<code>xapp-</code>, <code>xoxb-</code>)를, 슬랙 앱에서 <b>내 멤버 ID</b>(<code>U</code>로 시작)를 복사합니다. <b>세 값</b>입니다.</div></div>
     <div class="tile mark"><div class="t">② 넣는다</div><div class="d"><code>.env</code> 파일을 만들어 그 <b>세 값</b>을 붙여넣습니다. <b>멤버 ID 줄(<code>OWNER_USER_ID</code>)도 채워야</b> 진행됩니다.</div></div>
-    <div class="tile mark"><div class="t">③ 켠다</div><div class="d">검은 창에 <code>Bolt app is running!</code> 이 뜨면 연결 완료입니다.</div></div>
+    <div class="tile mark"><div class="t">③ 자동 시작</div><div class="d"><code>WD_AUTOSTART_OK</code>가 뜨면 등록 완료입니다. 설치 창은 닫아도 됩니다.</div></div>
   </div>
 
   <div class="note warn rise">
@@ -1826,7 +1826,7 @@ npm run dev</pre></div>
   <div class="gates rise">
     <div class="gate"><div class="g">관문 ①</div><div class="q">직원이 있나</div><div class="p">검은 창에 <code>직원 파일: 8개</code></div></div>
     <div class="gate"><div class="g">관문 ②</div><div class="q">열쇠가 맞나</div><div class="p"><code>py 점검.py 4</code> 에서 ✅</div></div>
-    <div class="gate"><div class="g">관문 ③</div><div class="q">서버가 붙었나</div><div class="p"><code>Bolt app is running!</code></div></div>
+    <div class="gate"><div class="g">관문 ③</div><div class="q">자동 시작됐나</div><div class="p"><code>WD_AUTOSTART_OK</code></div></div>
     <div class="gate"><div class="g">관문 ④</div><div class="q">슬랙이 오나</div><div class="p">말 걸면 <code>전달: 채널=DM …</code></div></div>
   </div>
 
@@ -1981,9 +1981,9 @@ settings:
   </div>
 </section>
 
-<section class="page" data-title="열쇠 넣고 서버 켜기" data-short="③ 넣고 켜기" data-part="3" data-n="24">
+<section class="page" data-title="열쇠 넣고 서버 자동 시작" data-short="③ 넣고 연결" data-part="3" data-n="24">
   <p class="eyebrow rise">PART 3 · 슬랙 안내</p>
-  <h2 class="rise">3단계 — 열쇠 넣고 서버 켜기</h2>
+  <h2 class="rise">3단계 — 열쇠 넣고 서버 자동 시작</h2>
 
   <h3 class="rise">3-1. <code>.env</code> 파일 만들기</h3>
   <ol class="flow rise">
@@ -2036,16 +2036,14 @@ CODEX_YOLO=1</pre></div>
 ❌  내 멤버 ID를 넣었다 (OWNER_USER_ID)
       └ 비어 있음 — 슬랙 앱 → 내 프로필 사진 → 프로필 → ⋯ 더보기 → 멤버 ID 복사</span></pre></div>
 
-  <h3 class="rise">3-4. 서버 켜기 <span class="fine">관문 ③</span></h3>
-  <div class="pre-wrap rise"><pre>py -3 server.py</pre></div>
-  <p class="rise"><code>npm</code> 이 아니라 <b><code>py</code></b> 입니다. 성공하면 이렇게 찍힙니다.</p>
-  <div class="pre-wrap rise"><pre><b>직원 파일: 8개</b>                  <span class="c">← 여기가 0개면 아무도 대답 안 합니다</span>
-직원 등록: staff1, staff2, staff3, staff4, staff5, staff6, staff7, staff8
-⚡ Bolt app is running!</pre></div>
+  <h3 class="rise">3-4. 서버 숨김 자동 시작 <span class="fine">관문 ③</span></h3>
+  <div class="pre-wrap rise"><pre>powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Agent\01_KIT\starter-kit\slack-server\install_autostart.ps1"</pre></div>
+  <p class="rise">이 명령은 한 번만 실행합니다. 성공하면 이렇게 찍히고 설치 창은 닫아도 됩니다.</p>
+  <div class="pre-wrap rise"><pre><b>WD_AUTOSTART_OK</b> task=WithDream Slack Codex Server state=Running</pre></div>
 
   <div class="note warn rise">
-    <span class="lb">🔎 <code>직원 파일: __개</code> 를 꼭 눈으로 읽으세요</span>
-    <p>오늘 <b>가장 많이 그냥 지나치는 줄</b>입니다. <code>0개</code> 인데 <code>Bolt app is running!</code> 만 보고 넘어가면, 그다음부터 원인을 찾기 어렵습니다. <b>이 창은 닫으면 안 됩니다.</b></p>
+    <span class="lb">🔎 검은 창 없는 자동 운영</span>
+    <p>Windows 로그인 때 자동으로 켜지고, 서버가 꺼지면 다시 시작됩니다. 직원 수와 실제 연결은 <code>점검.py 4</code>에서 확인합니다.</p>
   </div>
 
   <h3 class="rise">P9 — 열쇠 파일 만들기</h3>
@@ -2067,15 +2065,12 @@ CODEX_YOLO=1</pre></div>
 
   <p class="rise">열쇠를 넣었으면 <b>3-3의 <code>py 점검.py 4</code></b> 를 먼저 돌리세요. <code>열쇠 모양이 맞다</code> · <code>.env 가 BOM 없이 저장됐다</code> · <code>내 멤버 ID를 넣었다</code>가 <b>셋 다 ✅</b> 여야 합니다. <code>서버가 한 번 이상 정상 기동했다</code> 는 아직 ❌ 여도 됩니다 — 다음에서 켭니다.</p>
 
-  <h3 class="rise">P10 — 서버 켜기 <span class="fine">관문 ③</span></h3>
-  <h4 class="rise"><span class="pcard">P10</span> 관문③ 서버 켜기</h4>
-  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P10">slack-server 폴더에서 서버를 켜는 방법을 알려줘.
-그리고 정상적으로 켜졌는지 확인하는 법도 알려줘.
-
-- 이건 파이썬 프로그램이야. npm 이 아니라 py -3 server.py
-- 검은 창에 뭐가 찍히면 성공인지 알려줄 것
-- 실패하면 어떤 메시지가 나오는지도 미리 알려줄 것</pre></div>
-  <p class="rise">성공 화면은 위 <b>3-4</b>와 같습니다 — <code>직원 파일: 8개</code> 를 눈으로 읽고, <code>⚡ Bolt app is running!</code> 까지 확인하세요. <b>이 창은 닫으면 안 됩니다.</b></p>
+  <h3 class="rise">P10 — 서버 자동 시작 <span class="fine">관문 ③</span></h3>
+  <h4 class="rise"><span class="pcard">P10</span> 관문③ 서버 자동 시작</h4>
+  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P10">slack-server/install_autostart.ps1을 실행해줘.
+Windows 로그인 때 검은 창 없이 자동 시작되고, 서버가 꺼지면 자동 재시작되어야 해.
+등록 뒤 예약 작업 상태와 점검 방법을 알려줘.</pre></div>
+  <p class="rise">성공 화면은 위 <b>3-4</b>와 같습니다. <code>WD_AUTOSTART_OK</code>를 확인한 뒤 설치 창은 닫습니다.</p>
 </section>
 
 <section class="page" data-title="첫 대화 — 말 거는 곳 열기" data-short="③ 첫 대화" data-part="3" data-n="25">
@@ -2103,14 +2098,14 @@ CODEX_YOLO=1</pre></div>
     <p>목록에 <b>AI 직원</b> 이 <b>뜨면</b> 설치가 제대로 된 겁니다. <b>안 뜨면</b> 앱 설치(<code>Install to Workspace</code>)를 안 한 겁니다.</p>
   </div>
 
-  <h3 class="rise">검은 창을 같이 보세요 — 여기서 원인이 갈립니다</h3>
+  <h3 class="rise">서버 로그를 보세요 — 여기서 원인이 갈립니다</h3>
   <div class="pre-wrap rise"><pre>전달: 채널=DM 직원=staff1 내용='안녕'</pre></div>
 
   <div class="scroller rise"><table>
     <thead><tr><th style="width:150px">이 줄이</th><th style="width:280px">뜻</th><th>볼 곳</th></tr></thead>
     <tbody>
       <tr><td><b>뜬다</b></td><td>슬랙 → 서버는 <b>정상</b>. 그다음이 문제</td><td><code>직원 파일: 0개</code> 였는지 → <code>logs\server.log</code></td></tr>
-      <tr><td><b>안 뜬다</b></td><td>슬랙 메시지가 <b>서버까지 안 옴</b></td><td>검은 창이 살아 있나 → 채널이면 <code>/invite</code> 했나</td></tr>
+      <tr><td><b>안 뜬다</b></td><td>슬랙 메시지가 <b>서버까지 안 옴</b></td><td>자동 시작 상태 → 채널이면 <code>/invite</code> 했나</td></tr>
     </tbody>
   </table></div>
 
@@ -2119,7 +2114,7 @@ CODEX_YOLO=1</pre></div>
     <thead><tr><th style="width:44%">채널 이름</th><th>받는 직원</th></tr></thead>
     <tbody>
       <tr><td><code>#직원1</code> 또는 <code>#staff1</code></td><td>직원1</td></tr>
-      <tr><td><code>#직원2</code> ~ <code>#직원5</code></td><td>각각</td></tr>
+      <tr><td><code>#직원2</code> ~ <code>#직원8</code></td><td>각각 직원2 ~ 직원8</td></tr>
       <tr><td>그 밖의 아무 이름</td><td>직원1 이 받습니다</td></tr>
     </tbody>
   </table></div>
@@ -2132,12 +2127,12 @@ CODEX_YOLO=1</pre></div>
 
 
   <h3 class="rise">관문 ④ — 어디서 끊겼는지 가려내기</h3>
-  <p class="rise">말을 걸 때 <b>검은 창을 같이 보세요.</b> 여기서 원인이 두 갈래로 갈립니다.</p>
+  <p class="rise">말을 건 뒤 <b><code>logs/server.log</code>를 보세요.</b> 여기서 원인이 두 갈래로 갈립니다.</p>
   <div class="scroller rise"><table>
-    <thead><tr><th style="width:260px">검은 창에 <code>전달: 채널=DM …</code> 이</th><th style="width:230px">뜻</th><th>볼 곳</th></tr></thead>
+    <thead><tr><th style="width:260px">로그에 <code>전달: 채널=DM …</code> 이</th><th style="width:230px">뜻</th><th>볼 곳</th></tr></thead>
     <tbody>
       <tr><td><b>뜬다</b></td><td>슬랙 → 서버는 정상. 그다음이 문제</td><td><code>직원 파일: 0개</code> 였는지 / <code>logs/server.log</code></td></tr>
-      <tr><td><b>안 뜬다</b></td><td>슬랙 메시지가 서버까지 안 옴</td><td>창이 죽었나 / 채널이면 <code>/invite</code> 했나 / Event Subscriptions</td></tr>
+      <tr><td><b>안 뜬다</b></td><td>슬랙 메시지가 서버까지 안 옴</td><td>자동 시작 상태 / 채널이면 <code>/invite</code> 했나 / Event Subscriptions</td></tr>
     </tbody>
   </table></div>
   <h4 class="rise"><span class="pcard">P10-a</span> 관문④ 첫 대화 · 어디서 끊겼는지 가려내기</h4>
@@ -2206,10 +2201,10 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
   <div class="bug rise">
     <div class="sym"><span class="ic">4</span>“슬랙에서 에이전트가 아무도 대답을 안 해”</div>
     <dl>
-      <dt>상황</dt><dd><code>Bolt app is running!</code> 까지 떴는데 말을 걸어도 반응이 없음</dd>
+      <dt>상황</dt><dd><code>WD_AUTOSTART_OK</code>까지 떴는데 말을 걸어도 반응이 없음</dd>
       <dt>진짜 원인</dt><dd><b>직원 파일이 0개.</b> 스타터킷에는 직원이 <b>처음부터 없습니다</b> — <code>.codex\agents\</code> 안의 <code>_예시_직원.toml.txt</code>는 <code>.toml</code>이 아니라 세지 않습니다</dd>
       <dt>더 나빴던 점</dt><dd>예전 <code>점검.py 4</code> 는 <b>직원 수를 안 봐서 0명인데도 ✅ 로 통과</b>시켰다. "점검은 통과했는데 대답을 안 한다"가 여기서 나왔다</dd>
-      <dt class="fix">처방</dt><dd class="fix">검은 창을 <b>위로 스크롤</b>해 <code>직원 파일: __개</code> 를 확인. <code>0개</code> 면 <b>모듈 1</b>로 돌아가 직원을 만들고 서버 재시작</dd>
+      <dt class="fix">처방</dt><dd class="fix"><code>점검.py 4</code>에서 직원 수 확인. <code>0개</code>면 <b>모듈 1</b>로 돌아가 직원을 만든 뒤 자동 시작 명령 재실행</dd>
       <dt>지금은</dt><dd><code>점검.py 4</code> 가 직원 수·확장자 오저장까지 잡습니다</dd>
     </dl>
   </div>
@@ -2246,11 +2241,11 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
       <tr><td><code>.env 에 이게 비어 있습니다</code></td><td>값이 없거나 <b>BOM</b></td><td>값 확인 → 그래도면 <b>VS Code로 다시 저장</b></td></tr>
       <tr><td><code>슬랙 열쇠(SLACK_BOT_TOKEN)가 틀렸습니다</code></td><td><code>xoxb-</code> 값 오류</td><td><code>/oauth</code> 에서 다시 복사. 따옴표·공백 확인</td></tr>
       <tr><td><code>연결이 끊겼습니다. SLACK_APP_TOKEN…</code></td><td><code>xapp-</code> 오류 또는 <b><code>connections:write</code> 누락</b></td><td>앱 토큰을 <b>새로 하나 더</b> 만들 것 (스코프 체크)</td></tr>
-      <tr><td><b>말을 걸어도 아무 반응 없음</b></td><td>90%는 <b>검은 창이 닫힘</b>. 다음은 직원 0개</td><td>창 확인 → <code>직원 파일: __개</code> 확인 → <code>/invite</code></td></tr>
+      <tr><td><b>말을 걸어도 아무 반응 없음</b></td><td>자동 시작 실패·직원 0개·채널 초대 누락</td><td><code>점검.py 4</code> → <code>logs\server.log</code> → <code>/invite</code></td></tr>
       <tr><td><b>채팅이 막혀 있다 / 입력칸 잠김</b></td><td>메시지 탭 꺼짐</td><td>App Home → Messages Tab <b>+ 체크박스</b></td></tr>
       <tr><td><b>채널·DM 두 줄뿐, <code>앱</code> 항목 없음</b></td><td><b>정상</b></td><td>DM 옆 <code>+</code> → <code>AI</code> 검색</td></tr>
-      <tr><td><b>같은 답이 두 번 옴</b></td><td>서버가 두 개 떠 있음</td><td>검은 창을 <b>전부 닫고</b> 하나만 다시 켜기</td></tr>
-      <tr><td><b>직원 이름이 안 바뀜</b></td><td>서버 재시작 안 함</td><td><code>Ctrl</code>+<code>C</code> 후 다시 켜기</td></tr>
+      <tr><td><b>같은 답이 두 번 옴</b></td><td>구형 수동 서버와 자동 서버가 함께 실행됨</td><td>구형 서버 창을 한 번만 닫고 자동 시작 명령 재실행</td></tr>
+      <tr><td><b>직원 이름이 안 바뀜</b></td><td>서버 재시작 안 함</td><td>자동 시작 명령 다시 실행</td></tr>
       <tr><td><code>py</code> 를 못 찾음</td><td>Python <b>PATH 체크 누락</b></td><td>제어판에서 지우고 <b>체크하고</b> 재설치</td></tr>
       <tr><td><code>npm을 찾을 수 없습니다</code></td><td>Node.js 없음 또는 창을 안 새로 엶</td><td>창을 닫고 새로 열기</td></tr>
       <tr><td><b>파워셸에서만</b> <code>이 시스템에서 스크립트를 실행할 수 없습니다</code></td><td><code>codex.ps1</code> 실행 차단</td><td><code>codex.cmd --yolo</code>로 실행. 설정 변경 불필요</td></tr>
@@ -2297,8 +2292,8 @@ personas.py 파일에서 8명의 표시 이름과 이모지를 바꿔줘.
       <tr><td class="num">8</td><td><code>.env</code> 만들고 채우기</td><td><code>slack-server\</code></td><td><code>.env.txt</code> 아닌가 · <code>OWNER_USER_ID</code>에 <code>U…</code> 멤버 ID를 넣었나</td></tr>
       <tr><td class="num">9</td><td>저장</td><td>VS Code <code>Ctrl</code>+<code>S</code></td><td>메모장으로 저장 안 했나</td></tr>
       <tr><td class="num">10</td><td>자가진단</td><td><code>py 점검.py 4</code></td><td>열쇠 모양 ✅ · BOM ✅ · 멤버 ID ✅</td></tr>
-      <tr><td class="num">11</td><td>서버 켜기</td><td><code>py -3 server.py</code></td><td><b><code>직원 파일: 8개</code></b> · <code>Bolt app is running!</code></td></tr>
-      <tr><td class="num">12</td><td>말 걸기</td><td>DM 옆 <code>+</code> → <code>AI</code></td><td>검은 창에 <code>전달:</code> 이 뜨나</td></tr>
+      <tr><td class="num">11</td><td>서버 자동 시작</td><td><code>install_autostart.ps1</code></td><td><code>WD_AUTOSTART_OK</code></td></tr>
+      <tr><td class="num">12</td><td>말 걸기</td><td>DM 옆 <code>+</code> → <code>AI</code></td><td>Slack에 답이 오나</td></tr>
     </tbody>
   </table></div>
 

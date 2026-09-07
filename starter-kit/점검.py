@@ -1,13 +1,8 @@
-"""점검.py — 모듈이 끝날 때마다 여기서 합격 판정을 받습니다.
+r"""점검.py — 모듈이 끝날 때마다 여기서 합격 판정을 받습니다.
 
 사용법:
-    py 점검.py 0     ← 출발선 (프로그램이 다 깔렸는지)
-    py 점검.py 1     ← 직원 뽑기
-    py 점검.py 2     ← 일하는 방법 가르치기
-    py 점검.py 3     ← 팀으로 묶기
-    py 점검.py 4     ← 슬랙에서 부르기
-    py 점검.py 5     ← 사무실 차리기
-    py 점검.py 6     ← 전체 점검
+    & "$env:LOCALAPPDATA\Programs\Python\Python314\python.exe" 점검.py 0
+    마지막 숫자: 0 출발선 / 1 직원 / 2 스킬 / 3 팀 / 4 슬랙 / 5 사무실 / 6 전체
 
 이 파일은 고치지 마세요. 여러분이 만든 것이 규격에 맞는지 확인하는 채점표입니다.
 """
@@ -38,6 +33,7 @@ except Exception:
 
 ROOT = Path(__file__).resolve().parent
 OK, NO = "✅", "❌"
+PYTHON314_COMMAND = r'& "$env:LOCALAPPDATA\Programs\Python\Python314\python.exe"'
 
 
 # ── 도우미 ────────────────────────────────────────────────
@@ -50,6 +46,8 @@ def run(cmd):
     try:
         out = subprocess.run([exe] + cmd[1:], capture_output=True, text=True, timeout=20)
     except Exception:
+        return None
+    if out.returncode != 0:
         return None
     text = (out.stdout or out.stderr).strip()
     return text.splitlines()[0] if text else None
@@ -167,7 +165,17 @@ def module_0():
                    node or "설치 안 됨 → nodejs.org 에서 LTS 설치"))
 
     py = f"{sys.version_info.major}.{sys.version_info.minor}"
-    checks.append(("Python 3.11 이상", sys.version_info >= (3, 11), f"현재 {py}"))
+    standard_python = sys.version_info[:2] == (3, 14)
+    checks.append(("Python 3.14 (수업 표준)", standard_python,
+                   f"현재 {py}" + ("" if standard_python else
+                   f" → 환경점검.bat 실행 후 {PYTHON314_COMMAND} 점검.py 0")))
+
+    # 환경변수가 3.14라고 적혀 있어도 실제 실행 결과가 다르면 통과하지 않는다.
+    launcher_default = run(["py", "--version"])
+    launcher_python3 = run(["py", "-3", "--version"])
+    pinned = major(launcher_default) == (3, 14) and major(launcher_python3) == (3, 14)
+    checks.append(("py 실행기의 기본·Python 3 선택이 실제 3.14다", pinned,
+                   "정상" if pinned else "환경점검.bat을 다시 실행하고 새 터미널에서 점검하세요"))
 
     git = run(["git", "--version"])
     checks.append(("Git", git is not None, git or "설치 안 됨 → git-scm.com"))
@@ -357,7 +365,7 @@ def module_4():
             checks.append((".env 이름이 정확하다", False,
                            "이름 끝의 확장자를 지우세요: " + ", ".join(stray)))
 
-    # 🔒 값은 절대 읽지 않는다. 키 이름이 있는지만 본다.
+    # 🔒 키 이름과 아래의 값 형식만 검사하며 값은 출력하지 않는다.
     # utf-8-sig 로 읽는 이유: 메모장·파워셸로 저장한 .env 는 맨 앞에 안 보이는 표식(BOM)이
     # 붙어서, 그냥 utf-8 로 읽으면 첫 줄 키 이름이 깨진 채로 잡힌다.
     keys = set()
@@ -383,13 +391,14 @@ def module_4():
         for key, head in (("SLACK_BOT_TOKEN", "xoxb-"), ("SLACK_APP_TOKEN", "xapp-")):
             raw = vals.get(key)
             if raw is None or not raw.strip():
+                shape.append(f"{key}: 비어 있습니다")
                 continue
             v = raw.strip()
             if v[:1] in "\"'" or v[-1:] in "\"'":
                 shape.append(f"{key}: 따옴표를 지우세요")
-            elif raw != raw.rstrip() or raw[:1] == " ":
+            elif raw != raw.strip() or any(c.isspace() for c in v):
                 shape.append(f"{key}: 앞뒤 공백을 지우세요")
-            elif not v.startswith(head):
+            elif not v.startswith(head) or len(v) <= len(head):
                 other = "xapp-" if head == "xoxb-" else "xoxb-"
                 hint = f"{other} 을 여기 넣으신 것 같습니다" if v.startswith(other) else f"{head} 로 시작해야 합니다"
                 shape.append(f"{key}: {hint}")
@@ -404,10 +413,10 @@ def module_4():
             owner_msg = "비어 있음 — 슬랙 앱 → 내 프로필 사진 → 프로필 → ⋯ 더보기 → 멤버 ID 복사"
         elif v[:1] in "\"'" or v[-1:] in "\"'":
             owner_msg = "따옴표를 지우세요"
-        elif raw != raw.rstrip() or raw[:1] == " ":
+        elif raw != raw.strip():
             owner_msg = "앞뒤 공백을 지우세요"
-        elif v[:1].upper() not in ("U", "W") or len(v) < 9 or not v.isalnum():
-            owner_msg = "U로 시작하는 멤버 ID가 아닙니다 (이메일·이름이 아니라 '멤버 ID 복사' 값)"
+        elif not re.fullmatch(r"[UW][A-Z0-9]{8,}", v):
+            owner_msg = "U 또는 W로 시작하는 멤버 ID가 아닙니다 (이메일·이름이 아니라 '멤버 ID 복사' 값)"
         else:
             owner_msg = "정상"
         checks.append(("내 멤버 ID를 넣었다 (OWNER_USER_ID)", owner_msg == "정상", owner_msg))
@@ -424,7 +433,7 @@ def module_4():
     log = srv / "logs" / "server.log"
     started = log.is_file() and "running" in log.read_text(encoding="utf-8", errors="ignore").lower()
     checks.append(("서버가 한 번 이상 정상 기동했다", started,
-                   "정상" if started else "npm 아니고 py -3 server.py 로 켜야 합니다"))
+                   "정상" if started else f"slack-server 폴더에서 {PYTHON314_COMMAND} server.py"))
     return checks
 
 
@@ -467,8 +476,8 @@ TITLES = {0: "출발선 맞추기", 1: "직원 뽑기", 2: "일하는 방법 가
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] not in [str(i) for i in MODULES]:
-        print("사용법: py 점검.py <숫자 0~6>")
-        print("  예)  py 점검.py 1")
+        print(f"사용법 (PowerShell): {PYTHON314_COMMAND} 점검.py <숫자 0~6>")
+        print(f"  예) {PYTHON314_COMMAND} 점검.py 1")
         return 2
 
     n = int(sys.argv[1])

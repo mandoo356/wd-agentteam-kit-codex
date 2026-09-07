@@ -13,7 +13,14 @@
 param(
     [string]$InstallRoot = 'C:\Agent',
     [switch]$NoOpen,
-    [switch]$SkipEnvironmentCheck
+    [switch]$SkipEnvironmentCheck,
+    [switch]$SkipInstall,
+    [switch]$SkipLogin,
+    [switch]$SkipSlack,
+    [switch]$NoServerTest,
+    [switch]$OptionalLogins,
+    [switch]$NoBrowser,
+    [switch]$NoPause
 )
 
 $ErrorActionPreference = 'Stop'
@@ -44,7 +51,7 @@ function Stop-WithMessage([string]$Text) {
     Write-Host ''
     Write-Host "  ❌ $Text" -ForegroundColor Red
     Write-Host ''
-    $null = Read-Host '  이 창을 닫으려면 Enter'
+    if (-not $NoPause) { $null = Read-Host '  이 창을 닫으려면 Enter' }
     exit 1
 }
 
@@ -126,6 +133,12 @@ if ($sameLocation) {
             $legacyBackup = Join-Path $targetRoot ("04_LEARNER_BACKUP\Claude판_자동백업_" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
             $null = New-Item -ItemType Directory -Path $legacyBackup -Force
             foreach ($item in $legacyItems) {
+                $resolvedItem = [IO.Path]::GetFullPath($item)
+                $resolvedBackup = [IO.Path]::GetFullPath($legacyBackup)
+                if (-not $resolvedItem.StartsWith($targetFull + '\', [StringComparison]::OrdinalIgnoreCase) -or
+                    -not $resolvedBackup.StartsWith($targetRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
+                    throw '구형 설치 백업 경로가 설치 루트를 벗어났습니다.'
+                }
                 Move-Item -LiteralPath $item -Destination $legacyBackup -Force
             }
             Write-Info "구형 Claude 파일 $($legacyItems.Count)건 백업: $legacyBackup"
@@ -225,20 +238,28 @@ Write-Info "기록: $logFile"
 Write-Info "내 자료: $(Join-Path $targetRoot 'MyData') — 제안서 3·블로그 3·로고 1 을 수업 전에 넣어 두세요"
 Write-Host ''
 Write-Host '  node_modules는 이동 속도와 PC 호환성 문제 때문에 제외했습니다.' -ForegroundColor Yellow
-Write-Host '  환경점검에서 안내하는 npm 설치를 대상 PC에서 진행하세요.' -ForegroundColor Yellow
+Write-Host '  환경점검이 필요한 프로그램·Python 3.14·꾸러미를 자동 설치합니다.' -ForegroundColor Yellow
 
 if (-not $NoOpen) {
     try { Start-Process explorer.exe -ArgumentList "`"$targetRoot`"" } catch {}
 }
 
+# 2026-09-07: 환경점검까지 이어 실행하고 종료코드를 전달합니다.
+# npm.cmd·codex.cmd는 실행 정책 변경 없이 동작합니다. 이 프로세스만 -ExecutionPolicy Bypass로 실행합니다.
+$environmentExit = 0
 if (-not $SkipEnvironmentCheck) {
-    $answer = Read-Host '  이어서 환경점검을 실행할까요? [Y/n]'
-    if ([string]::IsNullOrWhiteSpace($answer) -or $answer.Trim().ToLower().StartsWith('y')) {
-        Start-Process -FilePath $marker -WorkingDirectory $targetKit
+    Write-Step '이어서 환경점검·자동 설치를 실행합니다'
+    $checkArguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $targetKit 'env_check.ps1'))
+    foreach ($option in @('SkipInstall','SkipLogin','SkipSlack','NoServerTest','OptionalLogins','NoBrowser','NoPause')) {
+        if (Get-Variable -Name $option -ValueOnly) { $checkArguments += "-$option" }
     }
+    & powershell.exe @checkArguments | Out-Host
+    $environmentExit = $LASTEXITCODE
 }
 
 Write-Host ''
 Write-Host '  이 창은 닫아도 됩니다.' -ForegroundColor DarkGray
 
 
+
+exit $environmentExit

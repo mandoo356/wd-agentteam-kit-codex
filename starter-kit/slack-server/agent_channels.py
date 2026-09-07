@@ -28,11 +28,37 @@ CHANNELS = {
     "staff5": "staff5",
     "직원5": "staff5",
 
+    # staff6
+    "staff6": "staff6",
+    "직원6": "staff6",
+
+    # staff7
+    "staff7": "staff7",
+    "직원7": "staff7",
+
+    # staff8
+    "staff8": "staff8",
+    "직원8": "staff8",
+
     # 🎨 내 채널 이름을 여기 추가하세요. 예)
     # "제안서": "staff1",
     # "교안":   "staff2",
     # "블로그": "staff4",
 }
+
+# personas.py에서 바꾼 실제 직원 표시 이름도 자동으로 같은 직원에게 연결한다.
+# 이름을 바꿀 때마다 이 파일에 같은 이름을 두 번 적어야 했던 연결 미스를 없앤다.
+try:
+    from personas import PERSONAS
+
+    for _agent, _persona in PERSONAS.items():
+        CHANNELS.setdefault(_agent.lower(), _agent)
+        _display_name = str(_persona.get("display_name", "")).strip().lower().lstrip("#@")
+        if _display_name:
+            CHANNELS.setdefault(_display_name, _agent)
+except Exception:
+    # personas.py에 문법 오류가 있어도 기본 staff1~staff8 연결표는 유지한다.
+    pass
 
 # 어느 채널인지 모를 때 받아줄 직원
 DEFAULT_AGENT = "staff1"

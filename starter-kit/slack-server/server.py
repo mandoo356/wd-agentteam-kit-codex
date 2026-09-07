@@ -2,8 +2,8 @@
 
 슬랙에 말을 걸면 → 이 프로그램이 받아서 → 직원(에이전트)을 깨우고 → 답을 슬랙에 올립니다.
 
-켜는 법:   py -3 server.py
-끄는 법:   검은 창에서 Ctrl + C
+운영 방법: install_autostart.ps1이 Windows 로그인 예약 작업으로 숨김 실행
+수동 실행: 장애 진단 때만 Python 3.14 절대경로로 server.py 실행
 필요한 것: 같은 폴더의 .env 파일에 슬랙 열쇠 2개와 내 멤버 ID
 
 ⚙️ 이 파일은 엔진입니다. 수업 중에 고칠 일은 없습니다.
@@ -42,6 +42,8 @@ from personas import (
     PERSONAS, INTRO_ORDER, CLASS_OPENING, CLASS_CLOSING,
     get_persona, get_intro,
 )
+
+STARTUP_TEST = "--startup-test" in sys.argv[1:]
 
 # ── 설정 읽기 ───────────────────────────────────────────────
 HERE = Path(__file__).resolve().parent
@@ -85,6 +87,22 @@ logging.basicConfig(
     ],
 )
 log = logging.getLogger("agent")
+
+# 예약 작업과 수동 실행이 겹쳐 답변이 두 번 올라오는 것을 막는다.
+# Windows 이름 있는 뮤텍스는 프로세스가 죽으면 운영체제가 자동으로 회수한다.
+_INSTANCE_MUTEX = None
+if sys.platform == "win32" and not STARTUP_TEST:
+    import ctypes
+
+    _INSTANCE_MUTEX = ctypes.windll.kernel32.CreateMutexW(
+        None, False, "Local\\WithDreamSlackCodexServer"
+    )
+    if not _INSTANCE_MUTEX:
+        log.error("서버 단일 실행 잠금을 만들지 못했습니다.")
+        sys.exit(1)
+    if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
+        log.info("Slack-Codex 서버가 이미 실행 중이라 중복 실행하지 않습니다.")
+        sys.exit(0)
 
 if not WORKSPACE.exists():
     log.error("workspace 폴더가 없습니다: %s", WORKSPACE)
@@ -194,7 +212,7 @@ def explain_failure(e: BaseException) -> str:
                 "일이 큰 경우입니다. 더 작게 쪼개서 다시 시켜보세요.")
     if "connection" in msg.lower() or "connect" in name.lower():
         return ("🔌 Codex와 연결이 끊겼습니다.\n"
-                "검은 창을 껐다 켜보세요 (Ctrl+C 후 `py -3 server.py`).")
+                "자동 시작 명령을 다시 실행한 뒤 logs/server.log를 확인하세요.")
     return f"❌ 오류가 났습니다: {name}\n자세한 내용은 slack-server/logs/server.log 에 있습니다."
 
 
@@ -352,10 +370,17 @@ async def main():
     handler = AsyncSocketModeHandler(app, SLACK_APP_TOKEN)
     print()
     print(f"  ✅ 준비 완료 — 슬랙 '{team}' 에서 말을 걸어보세요.")
-    print("     이 창을 닫으면 회사가 문을 닫습니다. 켜둔 채로 두세요.")
-    print("     끄려면 Ctrl + C")
+    if STARTUP_TEST:
+        print("     Socket Mode 연결 시험 중입니다.")
+    else:
+        print("     운영할 때는 install_autostart.ps1로 검은 창 없이 자동 실행하세요.")
     print()
     try:
+        if STARTUP_TEST:
+            await handler.connect_async()
+            print("WD_SOCKET_CONNECTED", flush=True)
+            await handler.close_async()
+            return
         await handler.start_async()
     except Exception as e:
         # 여기까지 오면 SLACK_APP_TOKEN(xapp-) 쪽 문제일 가능성이 높다.
@@ -370,4 +395,4 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("\n  서버를 껐습니다. 다시 켜려면  py -3 server.py\n")
+        print("\n  수동 점검 서버를 껐습니다. 운영 서버는 install_autostart.ps1로 등록하세요.\n")
