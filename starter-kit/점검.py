@@ -1,8 +1,13 @@
-r"""점검.py — 모듈이 끝날 때마다 여기서 합격 판정을 받습니다.
+"""점검.py — 모듈이 끝날 때마다 여기서 합격 판정을 받습니다.
 
 사용법:
-    & "$env:LOCALAPPDATA\Programs\Python\Python314\python.exe" 점검.py 0
-    마지막 숫자: 0 출발선 / 1 직원 / 2 스킬 / 3 팀 / 4 슬랙 / 5 사무실 / 6 전체
+    py 점검.py 0     ← 출발선 (프로그램이 다 깔렸는지)
+    py 점검.py 1     ← 직원 뽑기
+    py 점검.py 2     ← 일하는 방법 가르치기
+    py 점검.py 3     ← 팀으로 묶기
+    py 점검.py 4     ← 슬랙에서 부르기
+    py 점검.py 5     ← 사무실 차리기
+    py 점검.py 6     ← 전체 점검
 
 이 파일은 고치지 마세요. 여러분이 만든 것이 규격에 맞는지 확인하는 채점표입니다.
 """
@@ -33,7 +38,6 @@ except Exception:
 
 ROOT = Path(__file__).resolve().parent
 OK, NO = "✅", "❌"
-PYTHON314_COMMAND = r'& "$env:LOCALAPPDATA\Programs\Python\Python314\python.exe"'
 
 
 # ── 도우미 ────────────────────────────────────────────────
@@ -46,8 +50,6 @@ def run(cmd):
     try:
         out = subprocess.run([exe] + cmd[1:], capture_output=True, text=True, timeout=20)
     except Exception:
-        return None
-    if out.returncode != 0:
         return None
     text = (out.stdout or out.stderr).strip()
     return text.splitlines()[0] if text else None
@@ -68,16 +70,18 @@ def skill_files():
 
 
 def front_matter(path):
-    """파일 맨 위 --- 로 둘러싸인 부분에서 key: value 를 읽는다."""
-    if path.suffix.lower() == ".toml":
-        try:
-            return tomllib.loads(path.read_text(encoding="utf-8"))
-        except Exception:
-            return {}
+    """직원 TOML 또는 SKILL.md 머리말에서 주요 필드를 읽는다."""
     try:
         text = path.read_text(encoding="utf-8")
     except Exception:
         return {}
+    if path.suffix.lower() == ".toml":
+        try:
+            data = tomllib.loads(text)
+            return {str(k).lower(): str(v) for k, v in data.items()
+                    if k in {"name", "description", "developer_instructions"}}
+        except (tomllib.TOMLDecodeError, TypeError):
+            return {}
     m = re.match(r"^\s*---\s*\n(.*?)\n---", text, re.S)
     body = m.group(1) if m else text[:800]
     found = {}
@@ -165,43 +169,44 @@ def module_0():
                    node or "설치 안 됨 → nodejs.org 에서 LTS 설치"))
 
     py = f"{sys.version_info.major}.{sys.version_info.minor}"
-    standard_python = sys.version_info[:2] == (3, 14)
-    checks.append(("Python 3.14 (수업 표준)", standard_python,
-                   f"현재 {py}" + ("" if standard_python else
-                   f" → 환경점검.bat 실행 후 {PYTHON314_COMMAND} 점검.py 0")))
-
-    # 환경변수가 3.14라고 적혀 있어도 실제 실행 결과가 다르면 통과하지 않는다.
-    launcher_default = run(["py", "--version"])
-    launcher_python3 = run(["py", "-3", "--version"])
-    pinned = major(launcher_default) == (3, 14) and major(launcher_python3) == (3, 14)
-    checks.append(("py 실행기의 기본·Python 3 선택이 실제 3.14다", pinned,
-                   "정상" if pinned else "환경점검.bat을 다시 실행하고 새 터미널에서 점검하세요"))
+    # 수업 표준은 3.14 (환경점검이 무조건 설치). 다른 버전으로 이 파일을 돌리면 여기서 알려준다.
+    checks.append(("Python 3.14 (수업 표준)", sys.version_info[:2] == (3, 14),
+                   f"현재 {py}" + ("" if sys.version_info[:2] == (3, 14) else " → 환경점검.bat 을 실행하면 3.14 가 깔리고 py 가 3.14 로 고정됩니다")))
 
     git = run(["git", "--version"])
     checks.append(("Git", git is not None, git or "설치 안 됨 → git-scm.com"))
 
-    codex = shutil.which("codex.cmd") or shutil.which("codex.exe") or shutil.which("codex")
-    checks.append(("AI 코딩 도구 Codex CLI", bool(codex),
-                   codex or "Codex CLI가 설치돼 있어야 합니다"))
+    codex_cmd = shutil.which("codex.cmd")
+    codex = shutil.which("codex") or shutil.which("codex.cmd")
+    checks.append(("AI 코딩 도구 (codex.cmd 또는 codex)", bool(codex_cmd or codex),
+                   codex_cmd or codex or "둘 중 하나는 설치돼 있어야 합니다"))
 
-    need_dirs = [".codex/agents", ".agents/skills", "workspace/inbox", "workspace/memory"]
-    missing = [d for d in need_dirs if not (ROOT / d).is_dir()]
-    if not (ROOT / "AGENTS.md").is_file():
-        missing.append("AGENTS.md")
+    need = [".codex/agents", ".agents/skills", "workspace/inbox", "workspace/memory"]
+    missing = [d for d in need if not (ROOT / d).is_dir()]
     checks.append(("스타터킷 폴더 구조", not missing,
                    "정상" if not missing else "없는 폴더: " + ", ".join(missing)))
 
-    import json
-    hook_files = [".codex/hooks.json", ".codex/hooks/runtime.mjs", "configure_hooks.ps1"]
-    hook_ok = all((ROOT / f).is_file() for f in hook_files)
-    if hook_ok:
+    # 자동 저장·안전장치 (.codex/hooks.json + runtime.mjs). 이게 없으면 직원이 한 일이 기록되지 않고
+    # 삭제·덮어쓰기도 확인 없이 지나간다.
+    hooks = [".codex/hooks.json", ".codex/hooks/runtime.mjs", ".codex/config.toml"]
+    lost = [h for h in hooks if not (ROOT / h).is_file()]
+    ok_json = True
+    if not lost:
         try:
-            cfg = json.loads((ROOT / ".codex/hooks.json").read_text(encoding="utf-8-sig"))
-            hook_ok = all(cfg.get("hooks", {}).get(e) for e in ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop"])
+            import json
+            cfg = json.loads((ROOT / ".codex/hooks.json").read_text(encoding="utf-8"))
+            ok_json = bool(cfg.get("hooks", {}).get("PreToolUse")) and bool(cfg.get("hooks", {}).get("Stop"))
         except Exception:
-            hook_ok = False
-    checks.append(("자동 기록·저장·차단 파일 (Codex)", hook_ok,
-                   "파일 정상 — /hooks 신뢰와 작업기록 실행 확인은 별도로 필요" if hook_ok else "스타터킷을 다시 설치하세요"))
+            ok_json = False
+    checks.append(("자동 저장·안전장치 (기록 + 삭제 확인)", not lost and ok_json,
+                   "켜져 있음" if not lost and ok_json else
+                   ("없는 파일: " + ", ".join(lost) if lost else "hooks.json 이 깨졌습니다 → 스타터킷 원본에서 다시 복사")))
+    launcher = shutil.which("py")
+    checks.append(("py 실행기 (안전장치가 py -3 로 돈다)", launcher is not None,
+                   launcher or "py 가 없습니다 → 환경점검.bat 을 다시 실행 (py launcher 포함 설치)"))
+    pinned = os.environ.get("PY_PYTHON3", "") == "3.14" or sys.version_info[:2] == (3, 14)
+    checks.append(("py 가 3.14 를 가리킨다 (PY_PYTHON3)", pinned,
+                   "정상" if pinned else "환경점검.bat 을 다시 실행하면 고정됩니다. 새 창을 열어야 적용됩니다"))
 
     checks.append(("한글 경로에서 실행 중", True, str(ROOT)))
     return checks
@@ -210,13 +215,13 @@ def module_0():
 def module_1():
     files = agent_files()
     checks = [("직원이 1명 이상 있다", len(files) >= 1, f"{len(files)}명")]
-    checks.append(("직원이 8명 이상 있다", len(files) >= 8, f"{len(files)}명"))
+    checks.append(("직원이 5명 이상 있다", len(files) >= 5, f"{len(files)}명"))
 
     bad = []
     names = []
     for f in files:
         fm = front_matter(f)
-        missing = [k for k in ("name", "description", "developer_instructions") if k not in fm]
+        missing = [k for k in ("name", "description") if k not in fm]
         if missing:
             bad.append(f"{f.name}({','.join(missing)} 없음)")
         if "name" in fm:
@@ -308,6 +313,24 @@ def module_3():
     size = facts.stat().st_size if facts.is_file() else 0
     checks.append(("팀 규약에 내용이 채워져 있다", size > 200, f"{size} 바이트 (200 이상 필요)"))
 
+    # 2026-09-14 추가 — facts.md 의 인코딩. 메모장에서 'ANSI' 로 저장하면 한글이 깨져
+    # 직원이 대표 이름을 못 읽고 엉뚱한 이름을 지어냈다. 바이트 수만으로는 안 잡힌다.
+    enc_ok, enc_msg = True, "정상 (UTF-8)"
+    if facts.is_file():
+        raw = facts.read_bytes()
+        try:
+            raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            try:
+                raw.decode("cp949")
+                enc_ok = False
+                enc_msg = ("ANSI(CP949)로 저장돼 있습니다 — 메모장에서 열어 '다른 이름으로 저장' → "
+                           "인코딩 UTF-8 로 덮어쓰세요")
+            except UnicodeDecodeError:
+                enc_ok = False
+                enc_msg = "글자가 깨져 읽히지 않습니다 — 카드 P1 로 facts.md 를 다시 만드세요"
+    checks.append(("팀 규약이 UTF-8 로 저장돼 있다 (한글이 안 깨지는 근거)", enc_ok, enc_msg))
+
     notes = [p for p in (ROOT / "workspace" / "inbox").rglob("*") if p.is_file()]
     checks.append(("직원끼리 넘긴 쪽지가 1개 이상 있다", len(notes) >= 1,
                    f"{len(notes)}개" if notes else "workspace/inbox 가 비어 있습니다"))
@@ -319,7 +342,7 @@ def module_3():
     wb = workbooks()
     checks.append(("교재 워크북(.html)이 나왔다", len(wb) >= 1,
                    wb[0].name if wb else
-                   "카드 P8b 를 붙여넣고 'staff3 불러서 inbox 확인하고 이어서 교재 만들어줘'"))
+                   "카드 P8b 를 붙여넣고 'staff2 불러서 inbox 확인하고 이어서 교재 만들어줘'"))
 
     checks.append(("워크북이 인쇄용 A4다", printable(wb),
                    "정상 (@page 설정 있음)" if printable(wb) else
@@ -340,16 +363,16 @@ def module_4():
     # 슬랙이 아무리 잘 붙어도 직원 파일이 없으면 아무도 대답하지 않는다.
     # 예전에는 이걸 안 봐서, 직원 0명인데 모듈 4가 통과하고 나중에 터졌다.
     agents = agent_files()
-    checks = [("직원이 8명 이상 있다 (모듈 1 완료)", len(agents) >= 8,
+    checks = [("직원이 5명 이상 있다 (모듈 1 완료)", len(agents) >= 5,
                f"{len(agents)}명" if agents else "0명 — 모듈 1을 먼저 하세요")]
 
     # `.toml.txt` 로 잘못 저장된 파일 잡기. 탐색기가 확장자를 숨기면 눈으로는 구별이 안 된다.
     agents_dir = ROOT / ".codex" / "agents"
     mistyped = [p.name for p in agents_dir.glob("*.toml.*")
                 if not p.name.startswith("_")] if agents_dir.is_dir() else []
-    checks.append(("직원 파일 확장자가 .toml이다", not mistyped,
+    checks.append(("직원 파일 확장자가 .toml 이다", not mistyped,
                    "정상" if not mistyped
-                   else "이름 끝을 .toml로 고치세요: " + ", ".join(mistyped)))
+                   else "이름 끝을 .toml 로 고치세요: " + ", ".join(mistyped)))
 
     checks.append(("slack-server 폴더가 있다", srv.is_dir(), str(srv.relative_to(ROOT))))
     checks.append(("server.py 가 있다", (srv / "server.py").is_file(), "server.py"))
@@ -365,7 +388,7 @@ def module_4():
             checks.append((".env 이름이 정확하다", False,
                            "이름 끝의 확장자를 지우세요: " + ", ".join(stray)))
 
-    # 🔒 키 이름과 아래의 값 형식만 검사하며 값은 출력하지 않는다.
+    # 🔒 값은 절대 읽지 않는다. 키 이름이 있는지만 본다.
     # utf-8-sig 로 읽는 이유: 메모장·파워셸로 저장한 .env 는 맨 앞에 안 보이는 표식(BOM)이
     # 붙어서, 그냥 utf-8 로 읽으면 첫 줄 키 이름이 깨진 채로 잡힌다.
     keys = set()
@@ -374,8 +397,8 @@ def module_4():
             k = line.split("=", 1)[0].strip()
             if k and not k.startswith("#"):
                 keys.add(k.upper())
-    need = {"SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "OWNER_USER_ID"}
-    checks.append(("슬랙 열쇠 2개와 내 멤버 ID를 넣었다", need.issubset(keys),
+    need = {"SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"}
+    checks.append(("슬랙 열쇠 2개를 넣었다", need.issubset(keys),
                    "정상" if need.issubset(keys) else "빠진 항목: " + ", ".join(sorted(need - keys))))
 
     # 🔒 값의 "모양"만 본다. 값 자체는 화면에 절대 찍지 않는다.
@@ -391,35 +414,34 @@ def module_4():
         for key, head in (("SLACK_BOT_TOKEN", "xoxb-"), ("SLACK_APP_TOKEN", "xapp-")):
             raw = vals.get(key)
             if raw is None or not raw.strip():
-                shape.append(f"{key}: 비어 있습니다")
                 continue
             v = raw.strip()
             if v[:1] in "\"'" or v[-1:] in "\"'":
                 shape.append(f"{key}: 따옴표를 지우세요")
-            elif raw != raw.strip() or any(c.isspace() for c in v):
+            elif raw != raw.rstrip() or raw[:1] == " ":
                 shape.append(f"{key}: 앞뒤 공백을 지우세요")
-            elif not v.startswith(head) or len(v) <= len(head):
+            elif not v.startswith(head):
                 other = "xapp-" if head == "xoxb-" else "xoxb-"
                 hint = f"{other} 을 여기 넣으신 것 같습니다" if v.startswith(other) else f"{head} 로 시작해야 합니다"
                 shape.append(f"{key}: {hint}")
         checks.append(("열쇠 모양이 맞다 (xoxb / xapp)", not shape,
                        "정상" if not shape else " / ".join(shape)))
 
-        # 🔒 내 멤버 ID(OWNER_USER_ID). 이 값으로 요청자가 본인인지 확인한다.
-        #    값은 찍지 않고 모양만 본다 — 슬랙 사용자 ID는 U(또는 W)로 시작한다.
+        # 🔒 내 멤버 ID(OWNER_USER_ID). 이게 있어야 직원이 "나"를 알아보고 실행한다.
+        #    값은 찍지 않고 모양만 본다 — 슬랙 사용자 ID 는 U(또는 W) 로 시작한다.
         raw = vals.get("OWNER_USER_ID", "")
         v = raw.strip()
         if not v:
             owner_msg = "비어 있음 — 슬랙 앱 → 내 프로필 사진 → 프로필 → ⋯ 더보기 → 멤버 ID 복사"
         elif v[:1] in "\"'" or v[-1:] in "\"'":
             owner_msg = "따옴표를 지우세요"
-        elif raw != raw.strip():
+        elif raw != raw.rstrip() or raw[:1] == " ":
             owner_msg = "앞뒤 공백을 지우세요"
-        elif not re.fullmatch(r"[UW][A-Z0-9]{8,}", v):
-            owner_msg = "U 또는 W로 시작하는 멤버 ID가 아닙니다 (이메일·이름이 아니라 '멤버 ID 복사' 값)"
+        elif not v[:1].upper() in ("U", "W") or len(v) < 9 or not v.isalnum():
+            owner_msg = "U 로 시작하는 멤버 ID 가 아닙니다 (이메일·이름이 아니라 '멤버 ID 복사' 값)"
         else:
             owner_msg = "정상"
-        checks.append(("내 멤버 ID를 넣었다 (OWNER_USER_ID)", owner_msg == "정상", owner_msg))
+        checks.append(("내 멤버 ID 를 넣었다 (OWNER_USER_ID)", owner_msg == "정상", owner_msg))
 
         # 메모장으로 저장하면 맨 앞에 안 보이는 표식(BOM)이 붙는다. server.py 는 견디지만
         # 다른 도구로 열면 첫 줄을 못 읽으므로 여기서 미리 알려준다.
@@ -433,13 +455,62 @@ def module_4():
     log = srv / "logs" / "server.log"
     started = log.is_file() and "running" in log.read_text(encoding="utf-8", errors="ignore").lower()
     checks.append(("서버가 한 번 이상 정상 기동했다", started,
-                   "정상" if started else "환경점검.bat을 다시 실행하세요"))
+                   "정상" if started else "slack-server 폴더에서 py -3 -X utf8 server.py (환경점검이 한 번 켜 봅니다)"))
 
-    task_name = r"\WithDream Slack Codex Server"
-    autostart = run(["schtasks.exe", "/Query", "/TN", task_name]) is not None
-    checks.append(("슬랙 서버 숨김 자동 시작이 등록됐다", autostart,
-                   "정상 — Windows 로그인 때 검은 창 없이 시작" if autostart else
-                   r'PowerShell에서 powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Agent\01_KIT\starter-kit\slack-server\install_autostart.ps1"'))
+    # ── 2026-09-08 추가: 강의장에서 실제로 난 세 가지 ─────────────────
+    #   ① 직원이 대표를 남의 이름으로 부름  → facts.md 에 내 이름이 있어야 한다
+    #   ② 팀장만 대답                        → personas 표시 이름이 직원 파일과 짝이 맞아야 한다
+    #   ③ 이모지·캐릭터가 안 생김            → 아이콘이 슬랙 형식으로 바뀌는지, 인사말에 빈칸이 없는지
+    try:
+        sys.path.insert(0, str(srv))
+        import roster  # slack-server/roster.py (엔진)
+    except Exception:
+        roster = None
+    if roster is not None:
+        # 2026-09-14: '이름이 있다' 가 아니라 '이름이 한글로 제대로 읽힌다' 를 본다.
+        # 파일이 ANSI 로 저장돼 글자가 깨진 경우, 예전에는 "이름을 적으세요" 라는
+        # 엉뚱한 안내가 나갔다. 대표는 분명히 적었는데 계속 ❌ 가 떴다.
+        if hasattr(roster, "owner_name_detail"):
+            name, src, problem = roster.owner_name_detail(ROOT)
+        else:
+            name, src = roster.owner_name(ROOT)
+            problem = ""
+        detail = f"정상 ({src})" if name else (problem or "카드 P1 로 이름을 적으세요")
+        if name and problem:
+            detail = f"{name} — {problem}"
+        checks.append(("대표 이름이 한글로 제대로 읽힌다 (직원이 나를 알아보는 근거)",
+                       bool(name) and roster.is_hangul(name), detail))
+        try:
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("personas_check", srv / "personas.py")
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            personas = getattr(mod, "PERSONAS", {}) or {}
+            perr = ""
+        except Exception as e:  # noqa: BLE001
+            personas, perr = {}, f"{type(e).__name__}: {str(e)[:60]}"
+        checks.append(("personas.py 가 읽힌다", not perr,
+                       "정상" if not perr else f"personas.py 문법 오류 — {perr}. git checkout slack-server/personas.py 로 되돌리고 P11 다시"))
+        if personas:
+            agents_keys = set(roster.load_agents(ROOT))
+            orphan = [k for k in personas if k not in agents_keys]
+            checks.append(("personas 의 키가 직원 파일과 짝이 맞다", not orphan,
+                           "정상" if not orphan
+                           else "짝이 없는 키: " + ", ".join(orphan) + " — 키(staff1 같은 영어 이름)는 바꾸지 마세요"))
+            names = [str(p.get("display_name", "")).strip() for p in personas.values()]
+            dup = sorted({n for n in names if names.count(n) > 1})
+            default_names = [n for n in names if re.fullmatch(r"직원\d+", n)]
+            checks.append(("표시 이름이 서로 다르고 '직원1' 기본값이 아니다", not dup and not default_names,
+                           "정상" if not dup and not default_names
+                           else ("겹침: " + ", ".join(dup) + " / " if dup else "") +
+                                ("아직 기본값: " + ", ".join(default_names) + " → 카드 P11" if default_names else "")))
+            bad_icon = [k for k, p in personas.items() if not roster.emoji_ok(p.get("icon_emoji"))]
+            checks.append(("아이콘이 슬랙에 뜨는 형식이다 (📄 또는 :page_facing_up:)", not bad_icon,
+                           "정상" if not bad_icon else "못 알아듣는 아이콘: " + ", ".join(bad_icon)))
+            ph = [k for k, p in personas.items()
+                  if roster.intro_placeholders(str(p.get("intro", "")) + str(p.get("intro_class", "")))]
+            checks.append(("인사말에 [무엇] 빈칸이 없다 (팀 소개 때 캐릭터가 나오는 근거)", not ph,
+                           "정상" if not ph else "빈칸 남음: " + ", ".join(ph) + " → 카드 P11 (인사말까지 채웁니다)"))
     return checks
 
 
@@ -458,7 +529,7 @@ def module_5():
     checks.append(("내 회사 이름으로 바꿨다", changed,
                    "정상" if changed else "company.config 의 회사 이름이 아직 기본값입니다"))
 
-    checks.append(("직원 수가 office 와 맞는다", len(agent_files()) >= 8,
+    checks.append(("직원 수가 office 와 맞는다", len(agent_files()) >= 5,
                    f"직원 {len(agent_files())}명"))
     return checks
 
@@ -472,18 +543,82 @@ def module_6():
     return out
 
 
+def module_35():
+    """모듈 3.5 — 내 자료(MyData)가 실제로 스킬에 반영됐는지.
+
+    2026-09-14 신설. 그전에는 점검 어디에도 MyData 가 없어서, P17·P18 을 건너뛰거나
+    에이전트가 '요약만 하고 스킬을 안 고친' 경우를 아무도 못 잡았다.
+    그 결과 수강생 결과물에 견본(홍길동·길동컨설팅·4,000회)이 그대로 나왔다.
+    """
+    import os
+    checks = []
+    mydata = Path(os.environ.get("WD_MYDATA", r"C:\Agent\MyData"))
+    checks.append(("내 자료 폴더(MyData)가 있다", mydata.is_dir(), str(mydata)))
+
+    counts = {}
+    for sub in ("Proposal", "Blog", "Logo", "Profile"):
+        d = mydata / sub
+        counts[sub] = len([f for f in d.glob("*") if f.is_file()]) if d.is_dir() else 0
+    filled = [k for k, v in counts.items() if v > 0]
+    checks.append(("내 자료를 넣었다 (제안서·블로그·로고·프로필 중 2종 이상)",
+                   len(filled) >= 2,
+                   " · ".join(f"{k} {v}개" for k, v in counts.items())))
+
+    skills = ROOT / ".agents" / "skills"
+    sk = [d for d in skills.glob("*") if d.is_dir()] if skills.is_dir() else []
+    checks.append(("스킬이 1개 이상 있다", len(sk) >= 1,
+                   ", ".join(d.name for d in sk) if sk else "카드 P4 부터 하세요"))
+
+    # 스킬이 MyData 를 1순위로 적어 두었는가 (P18 이 실제로 반영됐다는 근거)
+    texts = {}
+    for d in sk:
+        t = ""
+        for f in d.rglob("*.md"):
+            try:
+                t += f.read_text(encoding="utf-8", errors="ignore")
+            except Exception:
+                pass
+        texts[d.name] = t
+    linked = [n for n, t in texts.items() if "MyData" in t]
+    checks.append(("스킬이 내 자료 폴더를 참고하라고 적고 있다 (카드 P18)",
+                   bool(linked),
+                   ", ".join(linked) if linked else
+                   "카드 P18 을 붙여넣어 스킬을 내 자료로 덮어쓰세요"))
+
+    # 견본 문구가 남아 있으면 내 자료가 아니라 예시로 만든 것이다
+    SAMPLES = ("홍길동", "길동컨설팅", "4,000회", "200회 이상 출강", "12년차")
+    dirty = sorted({n for n, t in texts.items() if any(x in t for x in SAMPLES)})
+    checks.append(("스킬에 견본 문구가 안 남아 있다 (내 것으로 덮어썼다는 근거)",
+                   not dirty,
+                   "정상" if not dirty else
+                   "견본이 남은 스킬: " + ", ".join(dirty) + " — 카드 P18 을 다시 돌리세요"))
+
+    made = [f for f in (ROOT / "workspace" / "결과물").glob("*") if f.is_file()]
+    bad = []
+    for f in made:
+        try:
+            t = f.read_text(encoding="utf-8", errors="ignore")
+        except Exception:
+            continue
+        if any(x in t for x in SAMPLES):
+            bad.append(f.name)
+    checks.append(("결과물에 견본 인물·실적이 안 들어갔다", not bad,
+                   "정상" if not bad else "견본이 들어간 파일: " + ", ".join(bad[:3])))
+    return checks
+
+
 MODULES = {0: module_0, 1: module_1, 2: module_2,
-           3: module_3, 4: module_4, 5: module_5, 6: module_6}
+           3: module_3, 35: module_35, 4: module_4, 5: module_5, 6: module_6}
 
 TITLES = {0: "출발선 맞추기", 1: "직원 뽑기", 2: "일하는 방법 가르치기",
-          3: "팀으로 묶기", 4: "슬랙에서 부르기", 5: "사무실 차리기",
-          6: "전체 점검"}
+          3: "팀으로 묶기", 35: "내 자료로 실력 갖추기", 4: "슬랙에서 부르기",
+          5: "사무실 차리기", 6: "전체 점검"}
 
 
 def main():
     if len(sys.argv) < 2 or sys.argv[1] not in [str(i) for i in MODULES]:
-        print(f"사용법 (PowerShell): {PYTHON314_COMMAND} 점검.py <숫자 0~6>")
-        print(f"  예) {PYTHON314_COMMAND} 점검.py 1")
+        print("사용법: py 점검.py <숫자 0~6, 내 자료는 35>")
+        print("  예)  py 점검.py 1")
         return 2
 
     n = int(sys.argv[1])

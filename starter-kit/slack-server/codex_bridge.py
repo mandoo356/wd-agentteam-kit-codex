@@ -3,13 +3,6 @@
 강의용 기본값은 YOLO 모드다. Codex가 확인창 없이 파일·명령 작업을 끝까지
 수행하도록 ``--dangerously-bypass-approvals-and-sandbox`` 를 사용한다.
 따라서 server.py의 OWNER_USER_ID 검사를 끄지 않는다.
-
-2026-09-07: 프로젝트 루트에서 실행하고 현재 Windows 계정의 환경변수
-(HOME/USERPROFILE/CODEX_HOME 포함)를 계승한다. 사용자 설정을 제외하는
---ignore-user-config 옵션은 쓰지 않는다. 프로젝트 설정은 Codex의 신뢰 설정에
-따라 로드된다. 같은 계정의 사용자 스킬과 프로젝트 .agents/skills는 파일 기반
-지침이며, 앱·MCP 커넥터 로그인과 별개다. 연결은 이 CLI 환경에서 사용할 수
-있도록 설정·인증되어 있어야 하며, 앱의 로그인 연결이 모두 자동 공유되지는 않는다.
 """
 from __future__ import annotations
 
@@ -58,7 +51,7 @@ def find_codex_cli(explicit: Optional[str] = None) -> str:
             return candidate
     raise CodexError(
         "codex 명령어를 찾을 수 없습니다.\n"
-        "  → Node.js 22 이상 설치 후 npm.cmd install -g @openai/codex\n"
+        "  → 검은 창에서 npm install -g @openai/codex\n"
         "  → 그래도 안 되면 .env에 CODEX_CLI=전체경로를 적어주세요"
     )
 

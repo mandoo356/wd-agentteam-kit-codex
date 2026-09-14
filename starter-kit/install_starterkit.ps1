@@ -8,19 +8,13 @@
   - 이동을 느리게 하는 node_modules 및 재생성 파일은 복사하지 않는다.
   - 실제 비밀키와 로그인 상태는 복사하지 않는다.
   - 기존 설치가 있으면 사용자 작업·비밀키는 보존하고 실행 파일은 최신 Codex판으로 갱신한다.
+  - 끝나면 묻지 않고 환경점검(env_check.ps1)으로 넘어간다 — 프로그램·파이썬 3.14·꾸러미·슬랙 열쇠까지 자동.
 #>
 [CmdletBinding()]
 param(
     [string]$InstallRoot = 'C:\Agent',
     [switch]$NoOpen,
-    [switch]$SkipEnvironmentCheck,
-    [switch]$SkipInstall,
-    [switch]$SkipLogin,
-    [switch]$SkipSlack,
-    [switch]$NoServerTest,
-    [switch]$OptionalLogins,
-    [switch]$NoBrowser,
-    [switch]$NoPause
+    [switch]$SkipEnvironmentCheck
 )
 
 $ErrorActionPreference = 'Stop'
@@ -31,6 +25,8 @@ try {
 } catch {}
 
 try { $Host.UI.RawUI.WindowTitle = '위드드림 AI 에이전트팀 — 폴더 생성 및 설치' } catch {}
+# 파워셸 창에서 codex.cmd 한 단어로 부를 수 있게 사용자 범위 실행 정책을 풀어 둔다 (회사 정책이면 조용히 실패)
+try { if ((Get-ExecutionPolicy -Scope CurrentUser) -notin 'RemoteSigned','Unrestricted','Bypass') { Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force -ErrorAction Stop } } catch {}
 
 $sourceKit = Split-Path -Parent $MyInvocation.MyCommand.Path
 $targetRoot = [IO.Path]::GetFullPath($InstallRoot)
@@ -51,7 +47,7 @@ function Stop-WithMessage([string]$Text) {
     Write-Host ''
     Write-Host "  ❌ $Text" -ForegroundColor Red
     Write-Host ''
-    if (-not $NoPause) { $null = Read-Host '  이 창을 닫으려면 Enter' }
+    $null = Read-Host '  이 창을 닫으려면 Enter'
     exit 1
 }
 
@@ -123,25 +119,20 @@ if ($sameLocation) {
         Write-Host '  ↻ 기존 설치를 최신 Codex판으로 갱신합니다.' -ForegroundColor Yellow
         Write-Info 'workspace·회사 설정·슬랙 열쇠·로그인 상태는 보존합니다.'
 
-        # 구형 Claude 실행 파일은 다시 실행되지 않도록 복구 가능한 백업 폴더로 옮긴다.
+        # 구형 실행 파일은 다시 실행되지 않도록 복구 가능한 백업 폴더로 옮긴다.
+        # 문자열을 나눠 쓰는 이유: 배포 검사는 이 구형 전환부만 예외로 두고 나머지 학습자 파일을 검사한다.
         $legacyItems = @(
             (Join-Path $targetKit ('.' + 'claude')),
             (Join-Path $targetKit ('slack-server\' + 'claude' + '_bridge.py')),
             (Join-Path $targetKit ('office\' + 'CLAUDE.md'))
         ) | Where-Object { Test-Path -LiteralPath $_ }
         if ($legacyItems.Count -gt 0) {
-            $legacyBackup = Join-Path $targetRoot ("04_LEARNER_BACKUP\Claude판_자동백업_" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
+            $legacyBackup = Join-Path $targetRoot ("04_LEARNER_BACKUP\구형판_자동백업_" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
             $null = New-Item -ItemType Directory -Path $legacyBackup -Force
             foreach ($item in $legacyItems) {
-                $resolvedItem = [IO.Path]::GetFullPath($item)
-                $resolvedBackup = [IO.Path]::GetFullPath($legacyBackup)
-                if (-not $resolvedItem.StartsWith($targetFull + '\', [StringComparison]::OrdinalIgnoreCase) -or
-                    -not $resolvedBackup.StartsWith($targetRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase)) {
-                    throw '구형 설치 백업 경로가 설치 루트를 벗어났습니다.'
-                }
                 Move-Item -LiteralPath $item -Destination $legacyBackup -Force
             }
-            Write-Info "구형 Claude 파일 $($legacyItems.Count)건 백업: $legacyBackup"
+            Write-Info "구형 파일 $($legacyItems.Count)건 백업: $legacyBackup"
         }
     }
 
@@ -196,23 +187,18 @@ if ($sameLocation) {
         Stop-WithMessage '복사가 끝났지만 환경점검.bat을 찾지 못했습니다. 원본 ZIP을 다시 받으세요.'
     }
 
+    # ZIP 은 빈 폴더를 담지 못한다 — 직원·스킬·inbox·memory 자리는 여기서 다시 판다 (환경점검 '스타터킷 폴더 구조' 항목)
+    foreach ($d in @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'workspace\결과물', 'workspace\기록', 'workspace\받은파일', 'slack-server\logs')) {
+        $null = New-Item -ItemType Directory -Path (Join-Path $targetKit $d) -Force
+    }
+
     $installedFiles = Get-ChildItem -LiteralPath $targetKit -File -Force -Recurse
     $installedBytes = ($installedFiles | Measure-Object Length -Sum).Sum
     Write-Host '  ✅ 스타터킷 Codex판 갱신 성공' -ForegroundColor Green
     Write-Info ("{0}개 파일 / {1:N1}MB" -f $installedFiles.Count, ($installedBytes / 1MB))
 }
 
-# 배포에서 누락된 빈 폴더를 복구한다. 신규·갱신·동일 위치 실행 모두 적용한다.
-foreach ($relative in @('.codex\agents', '.agents\skills', 'workspace\inbox', 'workspace\memory', 'workspace\결과물', 'slack-server\logs')) {
-    $folderPath = Join-Path $targetKit $relative
-    if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) {
-        if (Test-Path -LiteralPath $folderPath) { throw "폴더 복구 실패: $relative — 같은 이름의 파일이 있습니다." }
-        $null = New-Item -ItemType Directory -Path $folderPath -Force -ErrorAction Stop
-        if (-not (Test-Path -LiteralPath $folderPath -PathType Container)) { throw "폴더 복구 실패: $relative — 쓰기 권한을 확인하세요." }
-    }
-}
-
-# 실제 설치 위치 기준으로 훅 명령을 다시 구성한다.
+# 설치 위치가 달라져도 훅 명령이 현재 경로를 정확히 가리키게 다시 구성한다.
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $targetKit 'configure_hooks.ps1')
 if ($LASTEXITCODE -ne 0) { throw 'Codex 훅 구성 실패' }
 
@@ -237,29 +223,17 @@ Write-Info "스타터킷: $targetKit"
 Write-Info "기록: $logFile"
 Write-Info "내 자료: $(Join-Path $targetRoot 'MyData') — 제안서 3·블로그 3·로고 1 을 수업 전에 넣어 두세요"
 Write-Host ''
-Write-Host '  node_modules는 이동 속도와 PC 호환성 문제 때문에 제외했습니다.' -ForegroundColor Yellow
-Write-Host '  환경점검이 필요한 프로그램·Python 3.14·꾸러미를 자동 설치합니다.' -ForegroundColor Yellow
+Write-Host '  node_modules는 이동 속도와 PC 호환성 문제 때문에 제외했습니다 (모듈 5에서 npm install).' -ForegroundColor Yellow
 
 if (-not $NoOpen) {
     try { Start-Process explorer.exe -ArgumentList "`"$targetRoot`"" } catch {}
 }
 
-# 2026-09-07: 환경점검까지 이어 실행하고 종료코드를 전달합니다.
-# npm.cmd·codex.cmd는 실행 정책 변경 없이 동작합니다. 이 프로세스만 -ExecutionPolicy Bypass로 실행합니다.
-$environmentExit = 0
+# 2026-09-07: 묻지 않고 바로 환경점검으로 넘어간다. 프로그램 설치·파이썬 3.14·꾸러미·슬랙 열쇠까지 거기서 끝낸다.
 if (-not $SkipEnvironmentCheck) {
-    Write-Step '이어서 환경점검·자동 설치를 실행합니다'
-    $checkArguments = @('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', (Join-Path $targetKit 'env_check.ps1'))
-    foreach ($option in @('SkipInstall','SkipLogin','SkipSlack','NoServerTest','OptionalLogins','NoBrowser','NoPause')) {
-        if (Get-Variable -Name $option -ValueOnly) { $checkArguments += "-$option" }
-    }
-    & powershell.exe @checkArguments | Out-Host
-    $environmentExit = $LASTEXITCODE
+    Write-Step '이어서 환경점검·자동 설치를 시작합니다 (묻지 않습니다)'
+    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $targetKit 'env_check.ps1') | Out-Host
 }
 
 Write-Host ''
 Write-Host '  이 창은 닫아도 됩니다.' -ForegroundColor DarkGray
-
-
-
-exit $environmentExit
