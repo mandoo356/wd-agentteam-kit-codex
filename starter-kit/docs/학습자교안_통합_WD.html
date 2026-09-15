@@ -385,7 +385,7 @@ winget install --exact --id Microsoft.VisualStudioCode</pre></div>
   <h3 class="rise">1. 계정 만들기</h3>
   <div class="scroller rise"><table><tbody>
     <tr><td style="width:130px"><b>가입</b></td><td><a href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT</a> 계정</td></tr>
-    <tr><td><b>요금제</b></td><td>Codex를 사용할 수 있는 ChatGPT 계정으로 로그인합니다. 사용 가능 여부와 한도는 계정 화면에서 확인하고, 모델은 <b>8쪽의 <code>/model</code> 메뉴</b>에서 고릅니다.</td></tr>
+    <tr><td><b>요금제</b></td><td><b>수강생은 ChatGPT Plus를 권장</b>합니다. Plus에 Codex 사용량이 포함되며, 남은 한도는 계정의 사용량 화면에서 확인합니다. 모델은 <b>8쪽의 <code>/model</code> 메뉴</b>에서 고릅니다.</td></tr>
   </tbody></table></div>
 
   <h3 class="rise">2. 설치</h3>
@@ -802,21 +802,22 @@ codex.cmd --version</pre></div>
 <section class="page" data-title="모델 고르기" data-short="① 모델 고르기" data-part="1" data-n="8">
   <p class="eyebrow rise">PART 1 · 환경설정</p>
   <h2 class="rise">모델 고르기</h2>
-  <p class="lede rise">코덱스에는 <b>머리 좋은 순서로 여러 모델</b>이 있습니다. 오늘 하루를 <b>끝까지 버티려면</b> 어느 걸 쓰는지가 중요합니다. <b>설치 직후엔 그냥 두셔도 됩니다</b> — 기본값이 이미 알맞게 잡힙니다.</p>
+  <p class="lede rise">Codex에는 작업의 난이도와 사용량에 맞춘 여러 OpenAI 모델이 있습니다. 오늘 과정은 <b>Terra로 시작</b>하고, 단순 점검은 Luna, 어려운 제작만 Sol을 씁니다.</p>
 
-  <h3 class="rise">목록은 계정과 설치 버전에 따라 달라집니다</h3>
+  <h3 class="rise">Codex 모델 선택 — 2026-09-15 기준</h3>
   <div class="scroller rise"><table>
     <thead><tr><th style="width:130px">모델</th><th style="width:250px">성격</th><th>오늘 이 과정에서는</th></tr></thead>
     <tbody>
-      <tr><td><b>기본값</b></td><td>Codex가 현재 계정에 맞춰 선택</td><td><b>✅ 오늘 권장.</b> 설치 직후에는 그대로 시작합니다</td></tr>
-      <tr><td><b>빠른 모델</b></td><td>응답 속도와 사용량을 아끼는 선택</td><td><code>/model</code> 목록에 표시될 때 짧은 작업에 선택합니다</td></tr>
-      <tr><td><b>강한 모델</b></td><td>복잡한 코드·긴 문서에 유리</td><td>필요한 작업에서만 선택합니다</td></tr>
+      <tr><td><b>GPT-5.6 Terra</b></td><td>속도·품질·사용량의 균형</td><td><b>✅ 수강생 기본 권장.</b> 직원·스킬·문서 만들기에 사용합니다</td></tr>
+      <tr><td><b>GPT-5.6 Luna</b></td><td>가장 빠르고 사용량이 적음</td><td>파일 확인·목록 정리·짧은 수정처럼 단순한 작업에 사용합니다</td></tr>
+      <tr><td><b>GPT-5.6 Sol</b></td><td>복잡한 제작과 분석에 강함</td><td>Terra가 해결하지 못한 작업에서만 선택합니다</td></tr>
+      <tr><td><b>GPT-6 Astra</b></td><td>가장 어려운 문제 해결용</td><td>강사의 오류 해결·고난도 시연에만 제한적으로 사용합니다</td></tr>
     </tbody>
   </table></div>
 
   <div class="note warn rise">
     <span class="lb">오늘의 진짜 위험은 성능이 아니라 <b>사용량 한도</b>입니다</span>
-    <p>계정마다 사용할 수 있는 모델과 한도가 다릅니다. 오늘은 <b>기본값으로 시작</b>하고, 꼭 필요한 경우에만 <code>/model</code> 메뉴에서 바꿉니다.</p>
+    <p>Plus는 5시간·주간 사용량 창의 영향을 받습니다. 수강생 전원이 상위 모델만 계속 쓰면 실습 중 한도에 닿을 수 있으므로 <b>Terra를 기본</b>으로 사용합니다.</p>
   </div>
 
   <h3 class="rise">바꾸는 법</h3>
@@ -825,12 +826,12 @@ codex.cmd --version</pre></div>
 
   <div class="note tip rise">
     <span class="lb">한도에 걸렸을 때</span>
-    <p>"느려요" / "한도에 걸렸대요"가 나오면 <code>/model</code>에서 현재 제공되는 빠른 모델을 고르거나, 잠시 뒤 다시 시도합니다.</p>
+    <p>"느려요" / "한도에 걸렸대요"가 나오면 사용량 화면의 재설정 시간을 먼저 확인합니다. 모델 변경이 가능하면 <code>/model</code>에서 <b>Luna</b>를 선택해 단순 작업을 이어갑니다.</p>
   </div>
 
   <div class="note pass rise">
     <span class="lb">한 줄 요약</span>
-    <p>고민되면 <b>기본값</b>. 바꿀 때는 <code>/model</code>. 표시된 목록만 믿습니다.</p>
+    <p>수강생은 <b>Terra</b>, 단순 점검은 <b>Luna</b>, 어려운 제작만 <b>Sol</b>. 바꿀 때는 <code>/model</code>입니다.</p>
   </div>
 </section>
 
@@ -1937,11 +1938,15 @@ oauth_config:
       - app_mentions:read
       - channels:history
       - channels:read
+      - channels:join
       - groups:history
       - groups:read
       - im:history
       - im:read
+      - mpim:history
+      - mpim:read
       - files:read
+      - users:read
 settings:
   event_subscriptions:
     bot_events:
@@ -1949,6 +1954,7 @@ settings:
       - message.channels
       - message.groups
       - message.im
+      - message.mpim
   socket_mode_enabled: true
   org_deploy_enabled: false
   interactivity:
@@ -2167,6 +2173,24 @@ OWNER_USER_ID=U0123ABCD</pre></div>
   <div class="note warn rise">
     <span class="lb">채널은 초대가 필수입니다</span>
     <p>1:1 대화는 초대가 필요 없지만, <b>채널은 초대를 안 하면 말을 걸어도 아무 반응이 없습니다.</b> 이 비대칭이 혼란의 핵심입니다.</p>
+    <p style="margin-top:6px">파일도 마찬가지입니다. 초대 안 된 채널에 PDF 를 올리면 <b>서버에 이벤트 자체가 안 옵니다</b> — 직원이 게으른 게 아니라 못 들은 겁니다.</p>
+  </div>
+
+  <h3 class="rise">손으로 초대하기 싫으면 — 직원에게 시키면 됩니다 (2026-09-15)</h3>
+  <p>1:1 대화창에서 이렇게 말하면 직원이 <b>공개 채널에는 스스로 들어갑니다.</b></p>
+  <div class="pre-wrap rise"><pre>#제안서 채널에 들어가</pre></div>
+  <table>
+    <thead><tr><th style="width:34%">이렇게 말하면</th><th>직원이 하는 일</th></tr></thead>
+    <tbody>
+      <tr><td><code>#제안서 채널에 들어가</code></td><td>그 공개 채널에 들어가고 "들어갔습니다" 라고 답한다</td></tr>
+      <tr><td><code>채널에 들어가</code> (이름 없이)</td><td><b>들어갈 수 있는 채널 목록</b>을 보여주고 고르라고 한다</td></tr>
+      <tr><td>비공개 채널 이름을 대면</td><td>"제가 못 들어갑니다, <code>/invite</code> 해주세요" 라고 알려준다</td></tr>
+    </tbody>
+  </table>
+  <div class="note warn rise">
+    <span class="lb">비공개 채널은 끝까지 안 됩니다</span>
+    <p>권한을 아무리 줘도 <b>봇이 비공개 채널에 스스로 들어가는 길은 슬랙이 막아 두었습니다.</b> 사람이 그 채널에서 <code>/invite @AI 직원</code> 을 쳐야 합니다. "권한 추가하면 된다"는 말은 공개 채널에만 해당합니다.</p>
+    <p style="margin-top:6px">이 기능이 안 되고 <b>channels:join 권한이 없다</b>는 답이 오면 — 슬랙 앱 <b>App Manifest</b> 를 새 YAML 로 바꾸고 <b>OAuth &amp; Permissions → Reinstall to Workspace</b> 를 누른 뒤 검은 창을 다시 켜세요.</p>
   </div>
 
 
