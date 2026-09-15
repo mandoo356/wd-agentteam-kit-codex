@@ -118,6 +118,15 @@ if ($sameLocation) {
     if ($existingInstall) {
         Write-Host '  ↻ 기존 설치를 최신 Codex판으로 갱신합니다.' -ForegroundColor Yellow
         Write-Info 'workspace·회사 설정·슬랙 열쇠·로그인 상태는 보존합니다.'
+        # 2026-09-16: 킷이 .codex/agents/staff*.toml 을 싣고 있어, 이 경로로 갱신하면
+        # 수강생이 이름·성격·담당을 고쳐 둔 직원 파일이 견본으로 되돌아간다.
+        # 직원을 지키면서 엔진만 바꾸려면 update.ps1 을 써야 한다. 그 사실을 먼저 알린다.
+        Write-Host ''
+        Write-Host '     ⚠ 직원 파일(.codex\agents\staff*.toml)은 견본으로 되돌아갑니다.' -ForegroundColor Yellow
+        Write-Host '       이름·성격·담당을 고쳐 두셨다면 그 내용이 사라집니다.' -ForegroundColor Yellow
+        Write-Host '       직원을 지키면서 엔진만 새 판으로 바꾸시려면 여기서 Ctrl+C 로 멈추고 아래 한 줄을 쓰세요.' -ForegroundColor Cyan
+        Write-Host '       irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/update.ps1 | iex' -ForegroundColor Cyan
+        Write-Host ''
 
         # 구형 실행 파일은 다시 실행되지 않도록 복구 가능한 백업 폴더로 옮긴다.
         # 문자열을 나눠 쓰는 이유: 배포 검사는 이 구형 전환부만 예외로 두고 나머지 학습자 파일을 검사한다.

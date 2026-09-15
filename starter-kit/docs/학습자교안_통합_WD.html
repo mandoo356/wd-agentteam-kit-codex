@@ -425,6 +425,14 @@ winget install --exact --id Microsoft.VisualStudioCode</pre></div>
     <tr><td><b>설치 위치</b></td><td><code>C:\Agent\01_KIT\starter-kit</code>으로 자동 설치됩니다. <code>C:\Agent\MyData\</code>도 함께 만들어집니다</td></tr>
   </tbody></table></div>
 
+  <div class="note warn rise">
+    <span class="lb">🔁 재수강이신가요? — 그러면 아래 설치 한 줄이 아닙니다</span>
+    <p>이미 <code>C:\Agent</code> 에 킷이 깔려 있는데 설치 한 줄을 다시 돌리면, 엔진은 새 판으로 바뀌지만 <b>직원 파일(<code>.codex\agents\staff*.toml</code>)이 견본으로 되돌아갑니다.</b> 이름·성격·담당을 고쳐 두셨다면 그 내용이 사라집니다.</p>
+    <p style="margin-top:6px">직원을 지키면서 새 판으로 올리시려면 <b>이 줄</b>을 쓰세요. 엔진만 바뀌고 <b>내 직원·스킬·슬랙 열쇠는 그대로</b> 남습니다.</p>
+    <div class="pre-wrap"><pre>irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/update.ps1 | iex</pre></div>
+    <p class="fine" style="margin-top:6px">※ 컴퓨터를 바꿨거나 <code>C:\Agent</code> 폴더를 지우셨다면 그때는 아래 설치 한 줄이 맞습니다.</p>
+  </div>
+
   <h3 class="rise">2. 이 한 줄을 붙여넣고 Enter</h3>
   <div class="pre-wrap rise"><pre>irm https://raw.githubusercontent.com/mandoo356/wd-agentteam-kit-codex/main/install.ps1 | iex</pre></div>
   <p class="rise">위 줄을 마우스로 긁어 <code>Ctrl</code>+<code>C</code> → 파란 창에서 <b>마우스 오른쪽 클릭</b>(그게 붙여넣기입니다) → <code>Enter</code>. <code>Ctrl</code>+<code>V</code> 는 안 될 때가 있습니다.</p>
