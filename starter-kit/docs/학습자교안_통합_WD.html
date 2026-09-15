@@ -897,7 +897,6 @@ codex.cmd --version</pre></div>
       <tr><td><b>P17 · P17-1</b></td><td>내 자료(MyData) 폴더 열기 · 내용 추출 도구</td><td>PART 2 · 모듈 3.5 내 자료</td></tr>
       <tr><td><b>P18 · P18-1</b></td><td>스킬을 내 실물로 덮어쓰기 · 확인</td><td>PART 2 · 모듈 3.5 내 자료</td></tr>
       
-      <tr><td><b>P20</b></td><td>네이버 블로그 임시저장 실행</td><td>PART 2 · 모듈 3.5 네이버</td></tr>
       <tr><td><b>P8-a</b></td><td><b>관문①</b> 슬랙 붙이기 전 준비 확인</td><td>PART 3 · 전체 그림</td></tr>
       <tr><td><b>P9 · P9-a</b></td><td>열쇠 넣기 · <b>관문②</b> 자가진단</td><td>PART 3 · 넣고 켜기</td></tr>
       <tr><td><b>P10</b></td><td><b>관문③</b> 서버 켜기</td><td>PART 3 · 넣고 켜기</td></tr>
@@ -1099,8 +1098,8 @@ git checkout 번호 -- 파일경로</pre></div>
   </div>
 
   <div class="note tip rise">
-    <span class="lb">순서 — 블로그 먼저, 제안서 다음</span>
-    <p>바로 다음 장 <b>P4-0(블로그)</b> 이 오늘의 첫 스킬입니다. 짧고 결과가 바로 나옵니다. 그 다음 장 <b>P4(제안서)</b> 는 오늘 가장 긴 카드입니다.</p>
+    <span class="lb">순서 — 블로그 쓰고 → 네이버에 올리고 → 제안서</span>
+    <p><b>P4-0</b> 에서 블로그 글을 뽑고, <b>P4-1</b> 에서 그 글을 <b>내 블로그 임시저장함에 실제로 넣습니다.</b> 이 두 장이 오늘의 첫 성공이자 분기점입니다. 그 다음 장 <b>P4(제안서)</b> 는 오늘 가장 긴 카드입니다.</p>
   </div>
 
   <div class="note warn rise">
@@ -1192,19 +1191,66 @@ workspace/결과물/&lt;날짜&gt;_&lt;고객사&gt;_블로그초안.md
   </div>
 
   <div class="note rise">
-    <span class="lb">이 글을 네이버에 올리는 건 나중에</span>
-    <p>임시저장까지 이어서 하는 건 <b>모듈 3.5</b>의 <b>P20</b> 입니다. 지금은 글이 나오는 것만 확인하세요.</p>
+    <span class="lb">이 글은 바로 다음 장에서 네이버에 올립니다</span>
+    <p>글을 뽑는 것으로 끝이 아닙니다. <b>다음 장 P4-1</b> 에서 이 원고를 <b>내 블로그 임시저장함</b>에 실제로 넣습니다. 거기까지가 한 세트입니다.</p>
   </div>
 </section>
 
-<section class="page" data-title="P4 — 제안서 스킬 카드" data-short="② P4 카드" data-part="2" data-n="14">
+<section class="page" data-title="P4-1 — 네이버 임시저장" data-short="② P4-1 임시저장" data-part="2" data-n="14">
+  <p class="eyebrow rise">PART 2 · 진행 매뉴얼 · 모듈 2</p>
+  <h2 class="rise">P4-1 — 네이버 임시저장 <span class="fine">오늘의 와우 포인트</span></h2>
+  <p class="lede rise">앞 장에서 만든 원고가 <b>내 블로그 임시저장함에 실제로 들어가는</b> 단계입니다. 글이 나오는 것까지는 "그럴듯하네" 지만, <b>내 블로그에 들어가 있는 걸 눈으로 보면</b> 이야기가 달라집니다. 여기까지가 한 세트입니다. <b>발행(공개)은 하지 않습니다</b> — 임시저장까지만 자동화하고, 마지막 확인·발행은 항상 사람이 합니다.</p>
+
+  <div class="note tip rise">
+    <span class="lb">이미지는 넣지 않습니다</span>
+    <p>AI 삽화 자동 생성(구글 플로우·Gemini)은 <b>오래 걸리고 결제 키가 필요해</b> 과정에서 뺐습니다. 오늘은 <b>글만</b> 임시저장합니다. 사진을 넣고 싶으시면 임시저장된 글을 네이버 블로그 편집창에서 열어 <b>직접 끌어다 놓는 쪽이 가장 빠릅니다.</b></p>
+  </div>
+
+  <div class="note rise">
+    <span class="lb">네이버 블로그가 없으면 건너뛰세요</span>
+    <p>다음 장(P4 제안서)으로 바로 가시면 됩니다. 나중에 블로그를 만드시고 돌아와도 똑같이 됩니다.</p>
+  </div>
+
+  <h3 class="rise">1. 네이버 계정 최초 로그인</h3>
+  <p class="rise">이번에도 <b>비밀번호는 사람이 직접</b> 입력합니다. 창이 뜨면 로그인만 하세요.</p>
+  <div class="pre-wrap rise"><pre>cd "C:\Agent\01_KIT\starter-kit\naver-blog"
+py -3 naver_draft.py login --blog-id <span class="ph">내블로그아이디</span></pre></div>
+  <p class="fine rise">※ <code>내블로그아이디</code>는 <code>blog.naver.com/이아이디</code> 의 그 부분입니다. 세션은 <code>.naver-state.json</code> 에 저장됩니다 — 로그인 토큰이라 <b>절대 남에게 보내지 마세요.</b></p>
+
+  <h3 class="rise"><span class="pcard">P4-1</span> 임시저장 실행</h3>
+  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P4-1">스타터킷/naver-blog/naver_draft.py 로 방금 만든 블로그 원고를 네이버 블로그
+임시저장함에 넣어줘.
+
+- blog-id: <span class="ph">내블로그아이디</span>
+- 제목: <span class="ph">[○○기업 리더십 교육, 이렇게 진행했습니다]</span>
+- 원고 파일: 방금 만든 그 .md 파일
+- 이미지: 넣지 않는다 (글만 저장한다)
+
+실행 후 종료 코드와 화면 로그를 그대로 보여줘.
+임시저장 목록에서 제목이 실제로 보이는지 확인하기 전에는 "저장했다"고 말하지 마.
+"발행" 버튼은 어떤 경우에도 누르지 마.</pre></div>
+
+  <div class="note warn rise">
+    <span class="lb">🔒 안전 규칙 — 스크립트에도 들어 있지만 다시 한번</span>
+    <p>① <b>"발행" 버튼을 누르지 않습니다</b> — 임시저장까지만. ② <b>비밀번호를 입력하지 않습니다</b> — 로그인은 항상 사람이 직접. ③ <b>복구 팝업은 "취소"</b> — 기존 임시저장을 덮어쓰지 않습니다.</p>
+  </div>
+
+  <p class="rise"><b>통과 기준</b> — 네이버 블로그 임시저장 목록을 열어 <b>방금 지은 제목이 실제로 보이면</b> 통과입니다.</p>
+
+  <div class="note pass rise">
+    <span class="lb">여기까지 됐으면</span>
+    <p>원고 작성부터 임시저장까지 <b>직원이 이어서</b> 합니다. 발행 버튼만 사람이 누르면 됩니다. 내일부터 실제 후기·소식을 이 흐름으로 올리시면 됩니다. <b>이 감각을 가지고 다음 장 제안서로 가세요.</b></p>
+  </div>
+</section>
+
+<section class="page" data-title="P4 — 제안서 스킬 카드" data-short="② P4 카드" data-part="2" data-n="15">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼 · 모듈 2</p>
   <h2 class="rise">P4 — 첫 스킬 만들기 <span class="fine">통째로 복사 → 붙여넣기 → 엔터</span></h2>
   <p class="lede rise">오늘 가장 긴 카드입니다. <b>읽지 마시고 복사하세요.</b> 오른쪽 위 <b>복사</b> 단추를 누르면 전체가 한 번에 복사됩니다.</p>
 
   <div class="note tip rise">
     <span class="lb">이 스킬은 연습용 표준입니다 — 내 것으로 바꾸는 건 모듈 3.5에서</span>
-    <p>지금 만드는 제안서 스킬은 <b>누가 만들어도 같은 표준형</b>입니다. 회사 이름·색만 <code>facts.md</code>에서 가져올 뿐, 내 자료는 아직 안 읽습니다. 먼저 이걸로 직원이 제안서를 뽑는 걸 확인하고, <b>모듈 3.5(19쪽) P18</b>에서 <b>MyData에 넣은 내 제안서·프로필</b>을 읽혀 <b>이 스킬을 내 것으로 덮어씁니다.</b> 그러니 지금은 카드를 고치지 말고 그대로 쓰세요.</p>
+    <p>지금 만드는 제안서 스킬은 <b>누가 만들어도 같은 표준형</b>입니다. 회사 이름·색만 <code>facts.md</code>에서 가져올 뿐, 내 자료는 아직 안 읽습니다. 먼저 이걸로 직원이 제안서를 뽑는 걸 확인하고, <b>모듈 3.5(20쪽) P18</b>에서 <b>MyData에 넣은 내 제안서·프로필</b>을 읽혀 <b>이 스킬을 내 것으로 덮어씁니다.</b> 그러니 지금은 카드를 고치지 말고 그대로 쓰세요.</p>
   </div>
 
   <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P4">지금 열려 있는 이 스타터킷 폴더 안의 .agents/skills/제안서/ 에 SKILL.md 를 만들어줘.
@@ -1370,7 +1416,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;고객사&gt;_제안서덱.html
   장 | 제목 | 글자수 | 헤더 색 | 판정</pre></div>
 </section>
 
-<section class="page" data-title="P5 — 직원과 스킬 연결" data-short="② P5 연결" data-part="2" data-n="15">
+<section class="page" data-title="P5 — 직원과 스킬 연결" data-short="② P5 연결" data-part="2" data-n="16">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼 · 모듈 2</p>
   <h2 class="rise">P5 — 연결하고, 실제로 시켜보기</h2>
   <p class="lede rise">스킬을 만들었다고 직원이 자동으로 쓰지는 않습니다. <b>연결해줘야</b> 합니다.</p>
@@ -1414,7 +1460,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;고객사&gt;_제안서덱.html
   </div>
 </section>
 
-<section class="page" data-title="모듈 3 — 팀으로 묶기" data-short="② 모듈 3" data-part="2" data-n="16">
+<section class="page" data-title="모듈 3 — 팀으로 묶기" data-short="② 모듈 3" data-part="2" data-n="17">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼</p>
   <h2 class="rise">모듈 3 — 팀으로 묶기</h2>
   <p class="lede rise">직원끼리 <b>일을 넘기게</b> 만듭니다. 제안서 담당이 끝내면 교재 담당에게 쪽지를 남기고, 교재 담당이 그걸 읽고 이어받습니다.</p>
@@ -1463,7 +1509,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;고객사&gt;_제안서덱.html
   </div>
 </section>
 
-<section class="page" data-title="P8 — 교재 스킬 카드" data-short="② P8 카드" data-part="2" data-n="17">
+<section class="page" data-title="P8 — 교재 스킬 카드" data-short="② P8 카드" data-part="2" data-n="18">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼 · 모듈 3</p>
   <h2 class="rise">P8 — 교재(워크북) 스킬 만들기</h2>
   <p class="lede rise">제안서가 <b>팔기 위한 문서</b>라면, 교재는 <b>교육장에서 손에 쥐어주는 것</b>입니다. 이 카드도 깁니다 — <b>복사 단추 한 번</b>이면 됩니다.</p>
@@ -1622,7 +1668,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
   </div>
 </section>
 
-<section class="page" data-title="모듈 3.5 — 전문 스킬 설계" data-short="② 3.5 전문스킬" data-part="2" data-n="18">
+<section class="page" data-title="모듈 3.5 — 전문 스킬 설계" data-short="② 3.5 전문스킬" data-part="2" data-n="19">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼</p>
   <h2 class="rise">모듈 3.5 — 전문 프롬프트로 내 업종 스킬 만들기</h2>
   <p class="lede rise">오늘 만든 스킬은 <b>제안서(P4)</b>와 <b>교재(P8)</b> 두 가지뿐입니다. 그런데 내 실제 업무는 그보다 많습니다 — 블로그, 메일, 견적, 상담 회신… <b>이번 장은 그 나머지를 직접 설계하는 법</b>입니다.</p>
@@ -1694,7 +1740,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
   </div>
 </section>
 
-<section class="page" data-title="모듈 3.5 — 내 자료로 실력 갖추기" data-short="② 3.5 내자료" data-part="2" data-n="19">
+<section class="page" data-title="모듈 3.5 — 내 자료로 실력 갖추기" data-short="② 3.5 내자료" data-part="2" data-n="20">
   <p class="eyebrow rise">PART 2 · 진행 매뉴얼</p>
   <h2 class="rise">내 자료 폴더 만들기 · 직원에게 파악시키기</h2>
   <p class="lede rise">지금까지 만든 제안서·교재는 <b>연습용 예시</b>였습니다. 이 장부터는 <b>진짜 내 문체와 구성</b>을 직원의 기준선으로 박아 넣습니다. 오늘의 마지막 고비이자, 집에 가서 "진짜로 쓰게" 만드는 장입니다.</p>
@@ -1777,48 +1823,6 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
   <div class="note warn rise">
     <span class="lb">🔒 자료 창고는 읽기 전용입니다</span>
     <p>산출물은 <code>workspace/결과물/</code>에 만들고, <code>MyData/</code> 원본에는 아무것도 쓰지 않습니다. 팀 규약(<code>facts.md</code>)에 이미 적어 두었습니다.</p>
-  </div>
-</section>
-
-<section class="page" data-title="모듈 3.5 — 네이버 블로그 연결" data-short="② 3.5 네이버" data-part="2" data-n="20">
-  <p class="eyebrow rise">PART 2 · 진행 매뉴얼</p>
-  <h2 class="rise">네이버 블로그 연결 — 임시저장 (글만)</h2>
-  <p class="lede rise">앞 장에서 만든 블로그 스킬은 <b>원고(.md)까지만</b> 만듭니다. 이 장은 그 원고를 <b>실제 네이버 블로그 임시저장함</b>에 넣는 단계입니다. <b>발행(공개)은 하지 않습니다</b> — 임시저장까지만 자동화하고, 마지막 확인·발행은 항상 사람이 합니다.</p>
-
-  <div class="note tip rise">
-    <span class="lb">이미지는 넣지 않습니다</span>
-    <p>AI 삽화 자동 생성(구글 플로우·Gemini)은 <b>오래 걸리고 결제 키가 필요해</b> 과정에서 뺐습니다. 오늘은 <b>글만</b> 임시저장합니다. 사진을 넣고 싶으시면 임시저장된 글을 네이버 블로그 편집창에서 열어 <b>직접 끌어다 놓는 쪽이 가장 빠릅니다.</b></p>
-  </div>
-
-  <h3 class="rise">1. 네이버 계정 최초 로그인</h3>
-  <p class="rise">이번에도 <b>비밀번호는 사람이 직접</b> 입력합니다. 창이 뜨면 로그인만 하세요.</p>
-  <div class="pre-wrap rise"><pre>cd "C:\Agent\01_KIT\starter-kit\naver-blog"
-py -3 naver_draft.py login --blog-id <span class="ph">내블로그아이디</span></pre></div>
-  <p class="fine rise">※ <code>내블로그아이디</code>는 <code>blog.naver.com/이아이디</code> 의 그 부분입니다. 세션은 <code>.naver-state.json</code> 에 저장됩니다 — 로그인 토큰이라 <b>절대 남에게 보내지 마세요.</b></p>
-
-  <h3 class="rise"><span class="pcard">P20</span> 임시저장 실행</h3>
-  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P20">스타터킷/naver-blog/naver_draft.py 로 방금 만든 블로그 원고를 네이버 블로그
-임시저장함에 넣어줘.
-
-- blog-id: <span class="ph">내블로그아이디</span>
-- 제목: <span class="ph">[○○기업 리더십 교육, 이렇게 진행했습니다]</span>
-- 원고 파일: 방금 만든 그 .md 파일
-- 이미지: 넣지 않는다 (글만 저장한다)
-
-실행 후 종료 코드와 화면 로그를 그대로 보여줘.
-임시저장 목록에서 제목이 실제로 보이는지 확인하기 전에는 "저장했다"고 말하지 마.
-"발행" 버튼은 어떤 경우에도 누르지 마.</pre></div>
-
-  <div class="note warn rise">
-    <span class="lb">🔒 안전 규칙 — 스크립트에도 들어 있지만 다시 한번</span>
-    <p>① <b>"발행" 버튼을 누르지 않습니다</b> — 임시저장까지만. ② <b>비밀번호를 입력하지 않습니다</b> — 로그인은 항상 사람이 직접. ③ <b>복구 팝업은 "취소"</b> — 기존 임시저장을 덮어쓰지 않습니다.</p>
-  </div>
-
-  <p class="rise"><b>통과 기준</b> — 네이버 블로그 임시저장 목록을 열어 <b>방금 지은 제목이 실제로 보이면</b> 통과입니다.</p>
-
-  <div class="note pass rise">
-    <span class="lb">여기까지 됐으면</span>
-    <p>원고 작성부터 이미지, 임시저장까지 <b>직원이 이어서</b> 합니다. 발행 버튼만 사람이 누르면 됩니다. 내일부터 실제 후기·소식을 이 흐름으로 올리시면 됩니다.</p>
   </div>
 </section>
 
