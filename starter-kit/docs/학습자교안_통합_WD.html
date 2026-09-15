@@ -262,7 +262,7 @@ footer b{color:#fff}
 <div class="utility">
   <span>위드드림컨설팅</span><span class="sep">|</span>
   <span>에이전트 팀 만들기 · 1일 과정</span>
-  <span class="right">상세 설명서 · 2026-09-14</span>
+  <span class="right">상세 설명서 · 2026-09-15</span>
 </div>
 
 <nav class="topnav">
@@ -1423,12 +1423,18 @@ workspace/결과물/&lt;날짜&gt;_&lt;고객사&gt;_제안서덱.html
 
   <h3 class="rise"><span class="pcard">P5</span> 직원과 스킬 연결</h3>
   <p class="rise">바로 앞 <b>P4에서 만든 스킬이 <code>제안서</code></b> 입니다. 그 이름을 그대로 씁니다.</p>
-  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P5">방금 만든 <span class="ph">[제안서]</span> 스킬을 staff1 이 쓰도록 연결해줘.
+  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P5">지금까지 만든 스킬들을 담당 직원과 연결해줘.
 
-- .codex/agents/staff1.toml 본문에
-  "제안서를 만들 때는 <span class="ph">[제안서]</span> 스킬을 열고 시작한다" 를 넣을 것
-- staff1.toml 의 --- 부분(name, description, tools)은 건드리지 말 것
-- 나머지 직원 파일은 건드리지 말 것</pre></div>
+[담당은 네가 정해라 — 나한테 묻지 마]
+.codex/agents/ 의 직원 파일을 전부 읽고, 각 파일에 적힌 담당 업무와 각 스킬이
+하는 일을 대조해서 담당을 스스로 정한다.
+"몇 번 직원으로 할까요" 라고 묻지 마라 — 역할은 이미 직원 파일에 적혀 있다.
+
+- 고른 직원 파일 본문에 "이 일을 할 때는 [스킬이름] 스킬을 열고 시작한다" 를 넣을 것
+- 그 파일의 name·description·developer_instructions 구조는 건드리지 말 것
+- 담당이 아닌 직원 파일은 건드리지 말 것
+- 끝나면 표로 알려줄 것 —  스킬 | 붙인 직원 | 그렇게 정한 근거
+- 어느 직원에게도 정말 안 맞는 스킬이 있을 때만, 그것만 골라서 물어볼 것</pre></div>
   <p class="fine rise">스킬 폴더를 <code>.agents/skills/제안서/</code> 가 아닌 다른 이름으로 만드셨으면, 노란 칸을 그 폴더 이름으로 바꿔주세요.</p>
 
   <h3 class="rise">그리고 실제로 시켜봅니다 <span class="fine">이게 핵심</span></h3>
@@ -1721,8 +1727,11 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
   부르는 말(트리거) 2~4개를 적을 것
 - 같은 일을 하는 스킬이 이미 있으면 새로 만들지 말고 덮어쓸 것
 - 다 만든 뒤 여섯 칸이 전부 채워졌는지 스스로 표로 확인해서 보여줄 것
-- 어느 직원(staff1~8)이 이 스킬을 쓸지 물어보고, 그 직원 파일에
-  "이 일을 할 때는 이 스킬을 열고 시작한다"를 한 줄 넣을 것</pre></div>
+- 담당 직원은 네가 정해라. 직원 파일을 전부 읽고, 거기 적힌 담당 업무와
+  이 스킬이 하는 일을 대조해 가장 맞는 직원을 고른다.
+  "몇 번 직원으로 할까요" 라고 묻지 마라 — 역할은 이미 직원 파일에 적혀 있다.
+  고른 직원 파일 본문에 "이 일을 할 때는 이 스킬을 열고 시작한다" 를 한 줄 넣고,
+  누구에게 왜 붙였는지 한 줄로 알려줄 것. 정말 맞는 직원이 없을 때만 그때 물어볼 것</pre></div>
 
   <div class="note tip rise">
     <span class="lb">인터뷰에 뭐라고 답할지 모르겠으면</span>
@@ -2452,7 +2461,7 @@ personas.py 파일에서 핵심 직원 5명의 표시 이름과 이모지를 바
 
 <footer><div class="in">
   <b>위드드림컨설팅</b> · 에이전트 팀 만들기 상세 설명서 (환경설정 · 진행 매뉴얼 · 슬랙 안내 · 오류 사례집)<br>
-  서체 Noto Sans KR · 외부 참조 0건(오프라인에서 그대로 열립니다) · 2026-09-14 (슬랙 파일 읽기·핵심 5명 관문 반영)
+  서체 Noto Sans KR · 외부 참조 0건(오프라인에서 그대로 열립니다) · 2026-09-15 (블로그 먼저 · 임시저장까지 한 세트 · 이미지 자동생성 제외)
 </div></footer>
 
 <script>
