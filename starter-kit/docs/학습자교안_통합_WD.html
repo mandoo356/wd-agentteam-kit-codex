@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="utf-8">
@@ -1994,6 +1994,13 @@ py 점검.py 5     가상 사무실</pre></div>
     <div class="gate"><div class="g">관문 ④</div><div class="q">슬랙이 오나</div><div class="p">말 걸면 <code>전달: 채널=DM …</code></div></div>
   </div>
 
+  <div class="note warn rise">
+    <span class="lb">🔌 관문보다 먼저 — PC가 자면 사무실 문이 닫힙니다</span>
+    <p>서버는 <b>내 PC 안에서</b> 돕니다. 검은 창을 안 닫아도 <b>PC가 절전으로 넘어가는 순간 같이 멈춥니다.</b> 자리를 비운 사이 슬랙이 조용해졌다면 십중팔구 이것입니다.</p>
+    <p style="margin-top:8px"><b>설정</b> → <b>시스템</b> → <b>전원 및 배터리</b> → <b>절전 모드로 전환</b>을 <b>안 함</b>으로. <b>화면 끄기는 그대로 둬도 됩니다</b> — 모니터만 꺼지고 서버는 삽니다. 노트북은 <b>덮개를 닫아도 절전</b>이니 <b>덮개를 닫을 때 수행할 작업</b>도 <b>아무 것도 안 함</b>으로 바꾸세요.</p>
+    <p style="margin-top:8px">검은 창에서 한 줄로 끝내려면 — <code>powercfg /change standby-timeout-ac 0</code></p>
+  </div>
+
   <div class="note tip rise">
     <span class="lb">🧭 오늘 하루 쓰는 만능 방법 — <code>Ctrl</code> + <code>F</code></span>
     <p>슬랙 설정 화면은 항목이 수십 개라 <b>눈으로 찾으면 반드시 지나칩니다.</b> <code>Ctrl</code> 을 누른 채 <code>F</code> 를 누르면 작은 검색창이 뜹니다. 찾는 단어를 치면 그 자리로 표시가 뜹니다.</p>
@@ -2212,6 +2219,13 @@ OWNER_USER_ID=U0123ABCD</pre></div>
     <span class="lb">🔎 <code>직원 파일: __개</code> 를 꼭 눈으로 읽으세요</span>
     <p>오늘 <b>가장 많이 그냥 지나치는 줄</b>입니다. <code>0개</code> 인데 <code>Bolt app is running!</code> 만 보고 넘어가면, 그다음부터 원인을 찾기 어렵습니다. <b>이 창은 닫으면 안 됩니다.</b></p>
   </div>
+
+  <div class="note warn rise">
+    <span class="lb">🔌 창을 안 닫아도 — PC가 절전이면 똑같이 멈춥니다</span>
+    <p>창을 지키는 것만으로는 부족합니다. <b>절전으로 넘어가면 이 창이 그대로 떠 있어도 서버는 멈춥니다.</b> 점심시간에 자리를 비웠다가 "아무도 대답을 안 해요"가 되는 자리입니다.</p>
+    <p style="margin-top:8px"><code>py 점검.py 4</code>의 <b><code>PC가 절전으로 안 넘어간다</code></b> 줄이 ✅ 인지 보세요. ❌ 면 고치는 명령을 그 자리에 찍어 줍니다.</p>
+  </div>
+
 
   <h3 class="rise">P9 — 열쇠 파일 만들기</h3>
   <h4 class="rise"><span class="pcard">P9</span> 열쇠 붙여넣기</h4>
