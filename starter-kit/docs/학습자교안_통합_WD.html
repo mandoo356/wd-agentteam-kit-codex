@@ -262,7 +262,7 @@ footer b{color:#fff}
 <div class="utility">
   <span>위드드림컨설팅</span><span class="sep">|</span>
   <span>에이전트 팀 만들기 · 1일 과정</span>
-  <span class="right">상세 설명서 · 2026-09-15</span>
+  <span class="right">상세 설명서 · 2026-09-16</span>
 </div>
 
 <nav class="topnav">
@@ -515,6 +515,7 @@ winget install --exact --id Microsoft.VisualStudioCode</pre></div>
       <tr><td><code>C:\Agent\MyData\Blog\</code><br><span class="fine">블로그</span></td><td><b>3개</b></td><td>내가 쓴 블로그 글. 본문을 txt·docx로 저장하거나, 글 주소만 적은 txt도 됩니다</td></tr>
       <tr><td><code>C:\Agent\MyData\Logo\</code><br><span class="fine">로고</span></td><td><b>1개</b></td><td>회사 로고 png·jpg·svg. 로고가 없으면 명함이나 홈페이지 캡처</td></tr>
       <tr><td><code>C:\Agent\MyData\Profile\</code><br><span class="fine">프로필</span></td><td>3개 <span class="fine">선택</span></td><td>강사 프로필·이력서. 없으면 비워 둡니다</td></tr>
+      <tr><td><code>C:\Agent\MyData\Skill\</code><br><span class="fine">내 스킬</span></td><td>있는 만큼 <span class="fine">선택</span></td><td>이미 쓰던 <code>SKILL.md</code>. 모듈 3.5의 P17-2에서 가져옵니다</td></tr>
     </tbody>
   </table></div>
   <div class="note tip rise">
@@ -902,7 +903,7 @@ codex.cmd --version</pre></div>
       <tr><td><b>P8</b></td><td>교재(워크북) 스킬 · 릴레이 실습</td><td>PART 2 · P8 카드</td></tr>
       <tr><td><b>P15</b></td><td>구글 캘린더 연결 확인</td><td>PART 1 · 구글 연결</td></tr>
       <tr><td><b>P16</b></td><td>내 업종 스킬 설계(인터뷰형)</td><td>PART 2 · 모듈 3.5 전문스킬</td></tr>
-      <tr><td><b>P17 · P17-1</b></td><td>내 자료(MyData) 폴더 열기 · 내용 추출 도구</td><td>PART 2 · 모듈 3.5 내 자료</td></tr>
+      <tr><td><b>P17 · P17-1 · P17-2</b></td><td>내 자료 열기 · 내용 추출 · 쓰던 스킬 가져오기</td><td>PART 2 · 모듈 3.5 내 자료</td></tr>
       <tr><td><b>P18 · P18-1</b></td><td>스킬을 내 실물로 덮어쓰기 · 확인</td><td>PART 2 · 모듈 3.5 내 자료</td></tr>
       
       <tr><td><b>P8-a</b></td><td><b>관문①</b> 슬랙 붙이기 전 준비 확인</td><td>PART 3 · 전체 그림</td></tr>
@@ -1771,6 +1772,7 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
       <tr><td><code>MyData\Blog</code> <span class="fine">블로그</span></td><td><b>3개</b></td></tr>
       <tr><td><code>MyData\Logo</code> <span class="fine">로고</span></td><td><b>1개</b></td></tr>
       <tr><td><code>MyData\Profile</code> <span class="fine">프로필</span></td><td>3개 <span class="fine">선택</span></td></tr>
+      <tr><td><code>MyData\Skill</code> <span class="fine">내 스킬</span></td><td>있는 만큼 <span class="fine">선택</span></td></tr>
     </tbody>
   </table></div>
   <p class="fine rise">※ 없는 폴더는 <b>비워 두고 건너뛰어도</b> 됩니다. 오늘은 하나만 골라 끝까지 해보는 것을 권합니다.</p>
@@ -1810,7 +1812,34 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
 만든 다음, 방금 연 세 폴더로 실제로 한 번 돌려서 결과를 보여줘.</pre></div>
   <p class="fine rise">※ 도구는 <b>실행되는 파일</b>로 만들어야 합니다. 스킬 문서에 코드를 글로만 적으면 아무도 안 씁니다.</p>
 
-  <h3 class="rise">4. 직원에게 파악시키기 — 스킬을 내 실물로 덮어쓰기</h3>
+  <h3 class="rise">4. 이미 쓰던 내 스킬 가져오기 <span class="fine">Codex를 써 오신 분만</span></h3>
+  <p class="rise">Codex를 이미 쓰셨다면 <b>손에 익은 스킬</b>이 있을 수 있습니다. <code>C:\Agent\MyData\Skill\</code>에 그 <code>SKILL.md</code>를 넣어 두셨다면, <b>그것이 그 일의 정본</b>입니다. 수업에서 만든 같은 용도의 스킬은 보관 폴더로 옮깁니다.</p>
+  <p class="fine rise">※ Codex가 처음이시면 이 단계는 건너뛰고 5번으로 가세요.</p>
+
+  <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P17-2">C:/Agent/MyData/Skill/ 폴더의 .md 파일을 전부 읽어줘. 내가 원래 쓰던 스킬들이야.
+
+먼저 설치하지 말고, 파일마다 아래 네 줄로 정리해서 보여줘.
+1. 무슨 일을 하는 스킬인지 한 줄
+2. 어떤 말에 발동하는지 (트리거)
+3. 지금 내 스킬 중에 같은 일을 하는 게 있는지 — 있으면 그 이름
+4. 설치하면 뭐가 바뀌는지 한 줄
+
+내가 좋다고 하면 그때 설치해줘. 설치할 때는 이렇게 해줘.
+- .agents/skills/&lt;이름&gt;/SKILL.md로 넣어줘
+- 같은 일을 하는 스킬이 이미 있으면 내가 넣은 것이 정본이야.
+  기존 것은 지우지 말고 .agents/skills/_보관/으로 옮기고, 되돌리는 법을 한 줄로 알려줘
+- 트리거 낱말이 다른 스킬과 겹치면 알려줘. 한 낱말은 한 스킬만 갖게 해줘
+- 스킬 맨 위에 "출처: MyData/Skill/&lt;파일이름&gt;"을 적어줘
+- 내용은 고치지 마. 회사 이름·색 같은 사실만 facts.md 값으로 맞춰줘
+- 설치한 스킬과 담당 직원을 연결하고, facts.md에 어느 직원이 쓰는지 적어줘</pre></div>
+
+  <p class="rise"><b>통과 기준</b> — 설치 전에 스킬의 역할 요약이 먼저 나와야 하며, 같은 일을 하는 스킬은 <b>하나만</b> 남아야 합니다.</p>
+  <div class="note warn rise">
+    <span class="lb">🔒 <code>SKILL.md</code>는 자료가 아니라 명령문입니다</span>
+    <p>직원이 그 안에 적힌 대로 따릅니다. 남에게 받은 파일이라면 요약을 읽고 승인하세요.</p>
+  </div>
+
+  <h3 class="rise">5. 직원에게 파악시키기 — 스킬을 내 실물로 덮어쓰기</h3>
   <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P18">C:/Agent/MyData/ 아래 Proposal(제안서), Blog(블로그), Profile(프로필) 세 폴더를
 전부 훑어줘. 그 다음 각 폴더에 맞는 스킬(블로그·제안서·프로필)을 고쳐줘.
 프로필 스킬이 아직 없으면 모듈 3.5(전문 스킬 설계) 방식(여섯 칸)으로 새로 만들어줘.
@@ -1822,11 +1851,13 @@ workspace/결과물/&lt;날짜&gt;_&lt;과정명&gt;_교재.html
 
 - 스킬에 "참고 자료는 <폴더 경로>"를 적어두고, 앞으로 이 일을 할 때
   먼저 그 폴더를 훑고 시작하라고 규칙으로 넣어줘
-- 같은 일을 하는 스킬이 이미 있으면 새로 만들지 말고 덮어써줘</pre></div>
+- 같은 일을 하는 스킬이 이미 있으면 새로 만들지 말고 덮어써줘
+- 단, P17-2로 직접 넣은 스킬(맨 위에 "출처: MyData/Skill/"이 적힌 것)은
+  뼈대를 고치지 마. 그 스킬에는 참고 자료 폴더 경로만 덧붙이고 끝내줘</pre></div>
 
   <p class="rise"><b>통과 기준</b> — 스킬 문서에 <b>내 실제 문장 3개</b>가 근거로 인용돼 있으면 통과. "전문적이고 신뢰감 있게" 같은 일반론만 있으면 자료를 안 읽은 것입니다 — 다시 시키세요.</p>
 
-  <h3 class="rise">5. 다 됐는지 확인</h3>
+  <h3 class="rise">6. 다 됐는지 확인</h3>
   <div class="pre-wrap rise"><pre class="ask" contenteditable="true" spellcheck="false" data-card="P18-1">새로 고친 블로그 스킬로, 방금 강의 하나를 예로 들어 짧게 후기 한 편만 써줘.
 내 기존 글과 문체·구성이 비슷한지 스스로 비교해서 알려줘.</pre></div>
 
@@ -2469,7 +2500,7 @@ personas.py 파일에서 핵심 직원 5명의 표시 이름과 이모지를 바
 
 <footer><div class="in">
   <b>위드드림컨설팅</b> · 에이전트 팀 만들기 상세 설명서 (환경설정 · 진행 매뉴얼 · 슬랙 안내 · 오류 사례집)<br>
-  서체 Noto Sans KR · 외부 참조 0건(오프라인에서 그대로 열립니다) · 2026-09-15 (블로그 먼저 · 임시저장까지 한 세트 · 이미지 자동생성 제외)
+  서체 Noto Sans KR · 외부 참조 0건(오프라인에서 그대로 열립니다) · 2026-09-16 (쓰던 스킬 가져오기 · 절전 점검 · 슬랙 채널 입장 추가)
 </div></footer>
 
 <script>

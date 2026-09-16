@@ -356,6 +356,34 @@ def module_3():
     return checks
 
 
+def check_sleep():
+    """윈도우 절전 설정을 읽는다. 0초는 절전을 사용하지 않는다는 뜻이다."""
+    try:
+        out = subprocess.run(
+            ["powercfg", "/q", "SCHEME_CURRENT", "SUB_SLEEP", "STANDBYIDLE"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+            encoding="cp949",
+            errors="ignore",
+        ).stdout
+    except Exception:
+        return True, "확인 못 함 — 전원 설정에서 절전이 '해당 없음'인지 직접 확인하세요"
+
+    vals = re.findall(r"0x([0-9a-fA-F]{8})", out)
+    if len(vals) < 2:
+        return True, "확인 못 함 — 전원 설정에서 절전이 '해당 없음'인지 직접 확인하세요"
+
+    ac, dc = int(vals[-2], 16), int(vals[-1], 16)
+    if ac != 0:
+        return False, (f"전원 연결 상태에서 {ac // 60}분 뒤 절전됩니다 — "
+                       "powercfg /change standby-timeout-ac 0")
+    if dc != 0:
+        return True, (f"전원 연결 상태는 정상입니다. 배터리 사용 시 {dc // 60}분 뒤 절전됩니다 — "
+                      "필요하면 powercfg /change standby-timeout-dc 0")
+    return True, "정상 — 절전 '해당 없음'"
+
+
 def module_4():
     srv = ROOT / "slack-server"
 
@@ -456,6 +484,10 @@ def module_4():
     started = log.is_file() and "running" in log.read_text(encoding="utf-8", errors="ignore").lower()
     checks.append(("서버가 한 번 이상 정상 기동했다", started,
                    "정상" if started else "slack-server 폴더에서 py -3 -X utf8 server.py (환경점검이 한 번 켜 봅니다)"))
+
+    ok_sleep, sleep_msg = check_sleep()
+    checks.append(("PC가 절전으로 안 넘어간다 (자리를 비워도 직원이 대답하는 근거)",
+                   ok_sleep, sleep_msg))
 
     # ── 2026-09-08 추가: 강의장에서 실제로 난 세 가지 ─────────────────
     #   ① 직원이 대표를 남의 이름으로 부름  → facts.md 에 내 이름이 있어야 한다
@@ -604,6 +636,43 @@ def module_35():
             bad.append(f.name)
     checks.append(("결과물에 견본 인물·실적이 안 들어갔다", not bad,
                    "정상" if not bad else "견본이 들어간 파일: " + ", ".join(bad[:3])))
+
+    # 이미 사용하던 스킬은 MyData\Skill에서 가져오며, 같은 업무 스킬은 하나만 활성 상태로 둔다.
+    box = mydata / "Skill"
+    mine = [f for f in box.glob("*.md")] if box.is_dir() else []
+    if not mine:
+        checks.append(("쓰던 내 스킬 가져오기 (MyData\\Skill)", True,
+                       "넣은 것 없음 — Codex가 처음이면 정상입니다"))
+    else:
+        marker = ("MyData\\Skill", "MyData/Skill")
+        landed = [n for n, x in texts.items() if any(m in x for m in marker)]
+        checks.append((f"쓰던 내 스킬 {len(mine)}개가 실제로 설치됐다 (카드 P17-2)",
+                       bool(landed),
+                       ", ".join(landed) if landed else
+                       "설치 안 됨 — 카드 P17-2를 카드 P18보다 먼저 실행하세요"))
+
+    jobs = {
+        "블로그": ("블로그", "blog"),
+        "제안서": ("제안서", "proposal"),
+        "교재": ("교재", "워크북", "gyojae", "workbook"),
+        "프로필": ("프로필", "profile"),
+        "교안": ("교안", "curriculum"),
+    }
+    live = [d for d in sk if not d.name.startswith("_")]
+    clash = []
+    for job, keys in jobs.items():
+        hit = []
+        for directory in live:
+            head = (directory.name + " " + " ".join(
+                line for line in texts.get(directory.name, "").splitlines()[:12])).lower()
+            if any(key.lower() in head for key in keys):
+                hit.append(directory.name)
+        if len(hit) > 1:
+            clash.append(f"{job}: " + " / ".join(hit))
+    checks.append(("같은 일을 하는 스킬이 둘 이상 살아 있지 않다", not clash,
+                   "정상" if not clash else
+                   "겹칩니다 — " + " · ".join(clash) +
+                   " → 쓰던 것만 남기고 나머지는 .agents/skills/_보관/으로 옮기세요"))
     return checks
 
 
