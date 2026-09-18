@@ -176,7 +176,10 @@ if ($sameLocation) {
         '.naver-state.json',
         '환경점검_결과.html',
         '*.pyc',
-        '*.log'
+        '*.log',
+        '*.bak',
+        '*.bak_*',
+        '*.bak-*'
     )
     if ($existingInstall) { $excludedFiles += 'company.config.ts' }
 
