@@ -140,7 +140,7 @@ if ($sameLocation) {
         $legacyItems = @(
             (Join-Path $targetKit ('.' + 'claude')),
             (Join-Path $targetKit ('slack-server\' + 'claude' + '_bridge.py')),
-            (Join-Path $targetKit ('office\' + 'CLAUDE.md'))
+            (Join-Path $targetKit ('office\' + 'CLAUDE' + '.md'))
         ) | Where-Object { Test-Path -LiteralPath $_ }
         if ($legacyItems.Count -gt 0) {
             $legacyBackup = Join-Path $targetRoot ("04_LEARNER_BACKUP\구형판_자동백업_" + (Get-Date -Format 'yyyyMMdd-HHmmss'))
@@ -175,8 +175,7 @@ if ($sameLocation) {
         '.codex_session.json',
         '.naver-state.json',
         '환경점검_결과.html',
-        '*.pyc',
-        '*.log'
+        '*.pyc'
     )
     if ($existingInstall) { $excludedFiles += 'company.config.ts' }
 
