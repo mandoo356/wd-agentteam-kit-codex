@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import ast
 import os
 import tempfile
 import unittest
@@ -25,6 +26,24 @@ class FakeProcess:
 
 
 class BridgeTest(unittest.IsolatedAsyncioTestCase):
+    def test_server_bridge_contract(self):
+        root = Path(__file__).resolve().parent
+        server = ast.parse((root / "server.py").read_text(encoding="utf-8"))
+        bridge = ast.parse((root / "codex_bridge.py").read_text(encoding="utf-8"))
+        imported = {
+            alias.name
+            for node in ast.walk(server)
+            if isinstance(node, ast.ImportFrom) and node.module == "codex_bridge"
+            for alias in node.names
+        }
+        functions = {
+            node.name: node
+            for node in bridge.body
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        }
+        self.assertFalse(imported - functions.keys(), f"Missing bridge functions: {imported - functions.keys()}")
+        self.assertIn("speaker_name", {arg.arg for arg in functions["invoke_agent"].args.args})
+
     async def test_yolo_command_and_jsonl_response(self):
         with tempfile.TemporaryDirectory() as temp, patch.dict(
             os.environ, {"CODEX_YOLO": "1"}, clear=False

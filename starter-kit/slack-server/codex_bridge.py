@@ -102,6 +102,7 @@ class AgentPool:
 
     async def query_agent(self, agent: str, user_message: str,
                           timeout_sec: Optional[int] = None) -> str:
+        global _notice
         timeout_sec = timeout_sec or QUERY_TIMEOUT_SEC
         prompt = (
             f"[슬랙으로 온 요청. 담당 직원: @{agent}]\n"
@@ -127,6 +128,7 @@ class AgentPool:
                 log.warning("Codex 대화 이어받기 실패(%s) — 새 대화로 한 번 더 시도합니다",
                             type(first_error).__name__)
                 self.forget_session()
+                _notice = '이전 대화 연결이 끊겨 새 대화로 이어서 처리했습니다.'
                 return await self._run(prompt, RETRY_TIMEOUT_SEC, False)
 
     async def _run(self, prompt: str, timeout_sec: int, resume: bool) -> str:
@@ -177,6 +179,7 @@ class AgentPool:
 
 
 _pool: Optional[AgentPool] = None
+_notice: Optional[str] = None
 
 
 def get_pool(workspace: Path, cli_path: str) -> AgentPool:
@@ -187,6 +190,24 @@ def get_pool(workspace: Path, cli_path: str) -> AgentPool:
 
 
 async def invoke_agent(agent: str, user_message: str, workspace: Path,
-                       cli_path: str, timeout_sec: Optional[int] = None) -> str:
+                       cli_path: str, timeout_sec: Optional[int] = None,
+                       speaker_name: Optional[str] = None) -> str:
+    if speaker_name:
+        user_message = f'대표님 이름: {speaker_name}\n\n{user_message}'
     return await get_pool(workspace, cli_path).query_agent(
         agent, user_message, timeout_sec=timeout_sec)
+
+
+async def reset_conversation(workspace: Path, cli_path: str) -> None:
+    global _notice
+    if _pool is not None:
+        _pool.forget_session()
+    else:
+        SESSION_FILE.unlink(missing_ok=True)
+    _notice = None
+
+
+def pop_notice() -> Optional[str]:
+    global _notice
+    notice, _notice = _notice, None
+    return notice

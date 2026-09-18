@@ -2091,6 +2091,7 @@ settings:
     <p style="margin-top:8px">노란 글씨의 <code>messages_tab_enabled: true</code> 는 <b>1:1 대화창에 글을 쓸 수 있게</b> 해줍니다. 이게 없으면 대화창은 열리는데 <b>입력칸이 잠깁니다.</b> (PART 4의 사례 ①)</p>
     <p style="margin-top:8px">맨 아래 <code>socket_mode_enabled: true</code> 덕분에 <b>서버 주소 없이</b> 내 노트북에서 바로 연결됩니다.</p>
     <p style="margin-top:8px"><code>display_name: AI</code> 는 <b>영문 그대로</b> 두세요. 슬랙이 이 칸에는 한글을 받지 않아 <code>AI 직원</code> 처럼 적으면 Create 에서 오류가 납니다.</p>
+    <p style="margin-top:8px"><b>파일 권한 적용 확인:</b> 위 YAML의 <code>files:read</code>는 슬랙에 올린 사진·PDF·PPT를 내려받는 권한입니다. 이미 앱을 만든 분은 <b>App Manifest에서 YAML 저장 → OAuth &amp; Permissions에서 Reinstall to Workspace → 허용</b>까지 해야 새 권한이 실제 봇 토큰에 붙습니다. YAML 저장만으로는 적용되지 않습니다.</p>
   </div>
 
   <div class="shot rise">📷 [ 캡처 자리 — From a manifest 선택 화면 / YAML 붙여넣은 화면 ]</div>
@@ -2201,6 +2202,7 @@ OWNER_USER_ID=U0123ABCD</pre></div>
   <h3 class="rise">3-3. 켜기 전에 자가진단 <span class="fine">관문 ②</span></h3>
   <div class="pre-wrap rise"><pre>py 점검.py 4</pre></div>
   <p class="rise"><b>값은 화면에 안 찍힙니다.</b> 틀린 자리를 이름으로 짚어줍니다.</p>
+  <p class="rise"><b>파일 읽기 점검:</b> 이 단계에서 <code>files:read</code> 누락이 나오면 서버를 켜기 전에 슬랙 앱 <b>OAuth &amp; Permissions → Bot Token Scopes</b>에 추가하고 <b>Reinstall to Workspace</b>를 누르세요. 다시 <code>py 점검.py 4</code>를 실행해 <code>files:read</code> 누락이 사라졌는지 확인합니다.</p>
   <div class="pre-wrap rise"><pre><span class="c">❌  열쇠 모양이 맞다 (xoxb / xapp)
       └ SLACK_BOT_TOKEN: xapp- 을 여기 넣으신 것 같습니다
 ❌  .env 가 BOM 없이 저장됐다
@@ -2214,6 +2216,8 @@ OWNER_USER_ID=U0123ABCD</pre></div>
   <div class="pre-wrap rise"><pre><b>직원 파일: 5개</b>                  <span class="c">← 여기가 0개면 아무도 대답 안 합니다</span>
 직원 등록: staff1, staff2, staff3, staff4, staff5
 ⚡ Bolt app is running!</pre></div>
+
+  <p class="rise"><b>사진·파일 실습:</b> 서버가 켜진 상태에서 슬랙 대화창에 사진 또는 PDF 한 개를 올리고 <code>이 파일 읽어줘</code>라고 보내세요. 직원 답변과 <code>workspace/받은파일/&lt;날짜&gt;/</code>의 저장 파일을 함께 확인합니다. 파일 저장 실패 안내가 나오면 <code>files:read</code> 권한과 재설치 여부를 다시 점검합니다. 한 번에 최대 25MB 파일을 받습니다.</p>
 
   <div class="note warn rise">
     <span class="lb">🔎 <code>직원 파일: __개</code> 를 꼭 눈으로 읽으세요</span>
