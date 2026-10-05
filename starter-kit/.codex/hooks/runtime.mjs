@@ -9,6 +9,8 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '
 const norm = s => String(s).replaceAll('\\', '/').toLowerCase();
 const locked = ['.codex/hooks/', '.codex/hooks.json', '점검.py', 'configure_hooks.ps1'];
 const protectedPaths = ['.codex/', '.agents/', 'workspace/memory/', 'slack-server/.env', 'office/company.config.ts', 'agents.md', '.gitignore'];
+// 고친것.md 는 보호 구역 안이지만 직원이 매번 한 줄 보태는 "쌓이는 공책"이다 — 막으면 기록이 끊긴다. (2026-10-05)
+const ledgerPaths = ['workspace/memory/고친것.md'];
 const inside = (p, list) => list.some(x => x.endsWith('/') ? p.startsWith(x) : p === x);
 export function redact(s) {
   return String(s).replace(/(?:xox[baprs]-|xapp-|sk-)[A-Za-z0-9_-]+/g, '[비밀키 숨김]')
@@ -40,7 +42,7 @@ export function judge(data, root=ROOT) {
       if (r === null) return '스타터킷 바깥 원본 자료 수정은 터미널에서 확인하세요.';
       if (inside(r, locked)) return '채점표·안전장치 수정은 강사가 직접 진행합니다.';
       if (action === 'Delete File' || action === 'Move to') return '삭제·이동은 대상과 백업을 검토한 뒤 터미널에서 직접 실행하세요.';
-      if (inside(r, protectedPaths) && fs.existsSync(path.resolve(cwd,p))) return '기존 직원·스킬·규약 변경은 터미널에서 확인하세요.';
+      if (inside(r, protectedPaths) && !inside(r, ledgerPaths) && fs.existsSync(path.resolve(cwd,p))) return '기존 직원·스킬·규약 변경은 터미널에서 확인하세요.';
       if (action === 'Add File' && fs.existsSync(path.resolve(cwd,p))) return '기존 파일 전체 덮어쓰기를 차단했습니다.';
     }
   } else if (['Bash','exec_command','shell','shell_command'].includes(tool)) {
