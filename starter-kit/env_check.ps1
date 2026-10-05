@@ -894,7 +894,7 @@ Check-SlackEnv | Out-Null
 Fix-Slack
 Test-SlackLive
 Test-Server
-
+Enable-Autostart
 Write-Step '6/6 선택 항목 (메일 연결 · 네이버 블로그 로그인)'
 Check-MailEnv | Out-Null
 Fix-Mail
@@ -902,6 +902,43 @@ Test-MailLive
 Check-NaverLogin | Out-Null
 Fix-OptionalLogins
 
+function Enable-Autostart {
+    # 2026-10-05 신설. 코덱스판에는 install_autostart.ps1 이 있는데도 **부르는 곳이 없어서**
+    #   로그온 자동시작이 한 번도 등록되지 않았다. 수강생 눈에는 "PC 를 껐다 켜니 슬랙이
+    #   죽었다" 로 보인다. 서버 첫 기동이 실패해도 등록은 해둔다 — 감시기가 계속 다시
+    #   시도하므로, 열쇠를 고치는 순간부터 저절로 뜬다.
+    if ($NoServerTest) { return }
+    $ps1 = Join-Path $KIT 'slack-server\install_autostart.ps1'
+    if (-not (Test-Path -LiteralPath $ps1)) {
+        Set-Result 'autostart' 'PC 켤 때 슬랙 서버 자동 시작' '필수' $false 'install_autostart.ps1 이 없습니다 — 스타터킷 다시 설치'
+        return
+    }
+    Write-Step '이제 PC 를 켤 때마다 슬랙 서버가 저절로 뜨도록 등록합니다'
+    $serverUp = Is-Ok 'server'
+    $ok = $false; $d = '자동시작 등록에 실패했습니다'
+    try {
+        $r = & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $ps1 -NoStart 2>&1
+        $r | ForEach-Object { Write-Info $_ }
+        if (Get-ScheduledTask -TaskName 'WithDream Slack Codex Server' -ErrorAction SilentlyContinue) {
+            $ok = $true
+            $d = if ($serverUp) { '등록 완료 — 다음에 PC 를 켜면 뜹니다' }
+                 else { '등록은 됐습니다 — 다만 서버가 아직 안 떴습니다. 슬랙 열쇠 3개를 확인하고 환경점검을 다시 돌리면 그때부터 저절로 뜹니다' }
+        }
+    } catch { Write-Warn "예약 작업 등록 실패: $_" }
+
+    if (-not $ok) {
+        # 예약 작업 등록이 막히는 PC 가 있다(보안정책·권한). 그때는 로그온 Run 키로 대신 건다.
+        try {
+            $runner = Join-Path $KIT 'slack-server\run_hidden.ps1'
+            $cmd = ('powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}"' -f $runner)
+            New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Force | Out-Null
+            Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'WithdreamCodexServer' -Value $cmd
+            $ok = $true
+            $d = '예약 작업이 막혀서 로그온 자동시작(Run 키)으로 대신 등록했습니다 — PC 를 켜면 뜹니다'
+        } catch { Write-Warn "Run 키 등록도 실패: $_" }
+    }
+    Set-Result 'autostart' 'PC 켤 때 슬랙 서버 자동 시작' '필수' $ok $d 'slack-server 폴더에서 install_autostart.ps1 을 직접 실행해 주세요'
+}
 # ── 7. 최종 체크리스트 ───────────────────────────────────────
 Write-Host ''
 Write-Host '  ══════════════════ 체크리스트 ══════════════════' -ForegroundColor Magenta
