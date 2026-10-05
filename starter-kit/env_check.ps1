@@ -931,7 +931,9 @@ function Enable-Autostart {
         try {
             $runner = Join-Path $KIT 'slack-server\run_hidden.ps1'
             $cmd = ('powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -ExecutionPolicy Bypass -File "{0}"' -f $runner)
-            New-Item -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Force | Out-Null
+            # 2026-10-05: 레지스트리는 -Force 로 만들면 기존 값이 전부 날아간다. 없을 때만 만든다.
+            $rk = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run'
+            if (-not (Test-Path -LiteralPath $rk)) { New-Item -Path $rk -Force | Out-Null }
             Set-ItemProperty -Path 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Run' -Name 'WithdreamCodexServer' -Value $cmd
             $ok = $true
             $d = '예약 작업이 막혀서 로그온 자동시작(Run 키)으로 대신 등록했습니다 — PC 를 켜면 뜹니다'
